@@ -1,0 +1,9 @@
+Si es la primera vez que usas el proyecto:
+
+npm instal
+
+------------------
+
+Para correr el servidor:
+ 
+npm run dev
