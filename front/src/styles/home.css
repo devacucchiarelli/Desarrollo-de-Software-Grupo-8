@@ -1,0 +1,333 @@
+/* home.css - Copia y pega este contenido en tu archivo */
+
+/* ============================================== */
+/* 1. CONFIGURACIÓN Y VARIABLES CSS (RAÍZ)      */
+/* ============================================== */
+:root {
+    /* Paleta de Colores */
+    --color-bg-dark: #0f172a;      /* Fondo principal muy oscuro (azul marino) */
+    --color-bg-light: #1e293b;     /* Fondo secundario (para tarjetas) */
+    --color-border: #334155;     /* Borde sutil para tarjetas e inputs */
+    --color-text-primary: #e2e8f0;  /* Texto principal (casi blanco) */
+    --color-text-secondary: #94a3b8;/* Texto secundario (gris azulado) */
+    --color-accent-primary: #38bdf8; /* Acento principal (azul cielo brillante) */
+    --color-accent-secondary: #facc15;/* Acento secundario (amarillo) */
+    --color-danger: #f43f5e;       /* Color para acciones destructivas (rojo/rosa) */
+    --color-success: #34d399;      /* Color para acciones de éxito (verde) */
+  
+    /* Tipografía */
+    --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  
+    /* Otros */
+    --border-radius-md: 0.5rem;
+    --border-radius-lg: 0.75rem;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -4px rgba(0, 0, 0, 0.2);
+    --transition-fast: all 0.2s ease-in-out;
+  }
+  
+  /* ============================================== */
+  /* 2. ESTILOS GLOBALES Y CONTENEDOR PRINCIPAL   */
+  /* ============================================== */
+  body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    font-family: var(--font-family-sans);
+    background-color: var(--color-bg-dark);
+    background-image: url(../styles/images/bckg3.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .app-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    box-sizing: border-box;
+  }
+  
+  .main-content-wrapper {
+    width: 100%;
+    max-width: 500px;
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+  
+  .main-title {
+    font-size: clamp(2rem, 5vw, 2.5rem);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    text-align: center;
+    margin-bottom: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    letter-spacing: -0.5px;
+  }
+  
+  .title-icon {
+    font-size: 1.1em;
+    color: var(--color-accent-secondary);
+  }
+
+  .app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;                /* Esto asegura que se ajuste al viewport */
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #111;
+    color: white;
+    z-index: 1000;
+    box-sizing: border-box;  /* Cuenta el padding dentro del ancho total */
+  }
+  
+  .header-logo a {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: white;
+  }
+  
+  .header-nav{
+    display: flex;
+  }
+
+  .header-nav .btn-login {
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 100%;
+    text-decoration: none;
+    transition: background 0.3s ease;
+  }
+  
+  .header-nav .btn-login:hover {
+    background-color: #666;
+  }
+  
+  
+  
+  /* ============================================== */
+  /* 3. ESTILOS DE TARJETAS (TORNEO Y FORMULARIO) */
+  /* ============================================== */
+  .torneo-card,
+  .form-card {
+    background-color: var(--color-bg-light);
+    border-radius: var(--border-radius-lg);
+    padding: 2rem;
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-lg);
+    transition: var(--transition-fast);
+    width: 100%;
+    transform: translateX(-35px);
+  }
+  
+  .torneo-card:not(.no-torneo-card):hover {
+    box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+    border-color: var(--color-accent-primary);
+  }
+  
+  .no-torneo-card {
+    text-align: center;
+    padding: 3rem 2rem;
+  }
+
+  .torneo-details {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    color: var(--color-text-secondary);
+  }
+  
+  .torneo-name {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--color-accent-primary);
+    margin-bottom: 0.5rem;
+    text-align: center;
+  }
+  
+  .detail-label {
+    font-weight: 500;
+    color: var(--color-text-primary);
+    margin-right: 0.5rem;
+  }
+  
+  .no-torneo-text {
+    color: var(--color-text-secondary);
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* ============================================== */
+  /* 4. ESTILOS DE FORMULARIO                     */
+  /* ============================================== */
+  .form-card {
+    margin-top: 2rem;
+  }
+  
+  .form-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .title-edit { color: var(--color-accent-secondary); }
+  .title-create { color: var(--color-accent-primary); }
+  
+  .form-inputs-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .form-input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    background-color: var(--color-bg-dark);
+    color: var(--color-text-primary);
+    font-size: 1rem;
+    font-family: inherit;
+    transition: var(--transition-fast);
+  }
+  
+  .form-input::placeholder { color: var(--color-text-secondary); }
+  
+  .form-input:focus,
+  .form-input:focus-visible {
+    outline: none;
+    border-color: var(--color-accent-primary);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3);
+  }
+  
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.8);
+    cursor: pointer;
+  }
+  
+  /* ============================================== */
+  /* 5. ESTILOS DE BOTONES                        */
+  /* ============================================== */
+  .button-group,
+  .button-group-footer {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    justify-content: center;
+  }
+  
+  .btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: var(--border-radius-md);
+    border: none;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-align: center;
+  }
+  
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  .btn:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .btn-create { background-color: var(--color-accent-primary); color: var(--color-bg-dark); transform: translateX(290px); }
+  .btn-create:hover { background-color: #60a5fa; transform: translateX(290px); }
+  
+  .btn-edit { background-color: var(--color-accent-secondary); color: var(--color-bg-dark); }
+  .btn-edit:hover { background-color: #fde047; }
+  
+  .btn-delete { background-color: var(--color-danger); color: var(--color-text-primary); }
+  .btn-delete:hover { background-color: #f87171; }
+  
+  .btn-cancel { background-color: var(--color-border); color: var(--color-text-primary); }
+  .btn-cancel:hover { background-color: #475569; }
+  
+  .form-submit-btn.btn-create-submit { background-color: var(--color-success); color: var(--color-bg-dark); }
+  .form-submit-btn.btn-create-submit:hover { background-color: #4ade80; }
+  
+  .form-submit-btn.btn-edit-submit { background-color: var(--color-accent-secondary); color: var(--color-bg-dark); }
+  .form-submit-btn.btn-edit-submit:hover { background-color: #fde047; }
+  
+  /* ============================================== */
+  /* 6. MEDIA QUERIES PARA ESCRITORIO (> 768px)   */
+  /* ============================================== */
+  @media (min-width: 768px) {
+    .main-content-wrapper {
+      max-width: 800px;
+    }
+    
+    .torneo-details {
+      grid-template-columns: repeat(2, 1fr);
+      column-gap: 2rem;
+    }
+    
+    .torneo-name { text-align: left; }
+  
+    .form-inputs-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+  
+    .form-inputs-container input[name="nombre"] {
+      grid-column: 1 / -1;
+    }
+  
+    .button-group,
+    .button-group-footer {
+      flex-direction: row;
+    }
+    
+    .button-group-footer {
+      flex-direction: row-reverse;
+      justify-content: flex-start;
+    }
+  
+    .form-submit-btn {
+      margin-left: auto;
+    }
+  }
