@@ -1,19 +1,18 @@
-/* home.css - Copia y pega este contenido en tu archivo */
-
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 /* ============================================== */
 /* 1. CONFIGURACIÓN Y VARIABLES CSS (RAÍZ)      */
 /* ============================================== */
 :root {
     /* Paleta de Colores */
-    --color-bg-dark: #0f172a;      /* Fondo principal muy oscuro (azul marino) */
-    --color-bg-light: #1e293b;     /* Fondo secundario (para tarjetas) */
-    --color-border: #334155;     /* Borde sutil para tarjetas e inputs */
-    --color-text-primary: #e2e8f0;  /* Texto principal (casi blanco) */
-    --color-text-secondary: #94a3b8;/* Texto secundario (gris azulado) */
-    --color-accent-primary: #38bdf8; /* Acento principal (azul cielo brillante) */
-    --color-accent-secondary: #facc15;/* Acento secundario (amarillo) */
-    --color-danger: #f43f5e;       /* Color para acciones destructivas (rojo/rosa) */
-    --color-success: #34d399;      /* Color para acciones de éxito (verde) */
+    --color-bg-dark: #0f172a;      
+    --color-bg-light: #1e293b;     
+    --color-border: #334155;     
+    --color-text-primary: #e2e8f0;  
+    --color-text-secondary: #94a3b8;
+    --color-accent-primary: #38bdf8; 
+    --color-accent-secondary: #facc15;
+    --color-danger: #f43f5e;    
+    --color-success: #34d399;    
   
     /* Tipografía */
     --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -34,7 +33,6 @@
     margin: 0;
     padding: 0;
     overflow-x: hidden;
-    overflow-y: hidden;
     font-family: var(--font-family-sans);
     background-color: var(--color-bg-dark);
     background-image: url(../styles/images/bckg3.jpg);
@@ -74,8 +72,10 @@
   }
   
   .main-title {
-    font-size: clamp(2rem, 5vw, 2.5rem);
-    font-weight: 700;
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: clamp(3rem, 5vw, 2.5rem);
     color: var(--color-text-primary);
     text-align: center;
     margin-bottom: 2.5rem;
@@ -95,7 +95,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;                /* Esto asegura que se ajuste al viewport */
+    right: 0;                
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -104,7 +104,7 @@
     background-color: #111;
     color: white;
     z-index: 1000;
-    box-sizing: border-box;  /* Cuenta el padding dentro del ancho total */
+    box-sizing: border-box; 
   }
   
   .header-logo a {
@@ -124,13 +124,7 @@
     border-radius: 100%;
     text-decoration: none;
     transition: background 0.3s ease;
-  }
-  
-  .header-nav .btn-login:hover {
-    background-color: #666;
-  }
-  
-  
+  } 
   
   /* ============================================== */
   /* 3. ESTILOS DE TARJETAS (TORNEO Y FORMULARIO) */
@@ -182,6 +176,9 @@
   }
   
   .no-torneo-text {
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-style: italic;
     color: var(--color-text-secondary);
     font-size: 1.125rem;
     margin-bottom: 1.5rem;
@@ -211,7 +208,19 @@
   }
   
   .form-input {
-    width: 100%;
+    width: 90%;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    background-color: var(--color-bg-dark);
+    color: var(--color-text-primary);
+    font-size: 1rem;
+    font-family: inherit;
+    transition: var(--transition-fast);
+  }
+
+  .form-input-nombreTorneo{
+    width: 95%;
     padding: 0.8rem 1rem;
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius-md);
@@ -296,6 +305,10 @@
   /* 6. MEDIA QUERIES PARA ESCRITORIO (> 768px)   */
   /* ============================================== */
   @media (min-width: 768px) {
+    body{
+      overflow-y: hidden;
+    }
+
     .main-content-wrapper {
       max-width: 800px;
     }
@@ -304,8 +317,7 @@
       grid-template-columns: repeat(2, 1fr);
       column-gap: 2rem;
     }
-    
-    .torneo-name { text-align: left; }
+
   
     .form-inputs-container {
       display: grid;
