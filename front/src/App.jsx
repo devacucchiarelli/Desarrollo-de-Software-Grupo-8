@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/home.jsx";
 import Registro from './Registro.jsx'
 import ListaUsuarios from './ListaUsuarios.jsx'
+import Equipo from "./pages/equipo.jsx";
+
 
 function App() {
 
@@ -17,6 +19,7 @@ function App() {
         <Route path="/" element={<Home isAdmin={isAdmin} />} />
         <Route path="/registro" element={<Registro isAdmin={isAdmin} />} />
         <Route path="/usuarios" element={<ListaUsuarios isAdmin={isAdmin} />} />
+        <Route path="/equipo" element={<Equipo isAdmin={isAdmin} />} />
       </Routes>
     </BrowserRouter>
   );

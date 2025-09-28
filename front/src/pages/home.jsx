@@ -32,6 +32,7 @@ function Home({ isAdmin }) {
         </div>
         <nav className="header-nav">
           <a href="#" className="btn">Torneos</a>
+          <a href="equipo" className="btn">Equipo</a>
           <a href="#" className="btn">Estadísticas</a>
           <a href="#" className="btn btn-login">Login</a>
         </nav>
