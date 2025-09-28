@@ -1,1 +1,5 @@
-la bd debe levantarse dentro de un contenedor docker para ser utilizada de manera local y remota docker-compose define los servicios de postgresql y pgadmin .env.example es un modelo de archivo de configuración de variables de entorno para que sepan como crear su usuario en la base, una vez accedan a ese archivo cambian el usuario y password y lo guardan como .env schema.sql es el script para crear las tablas que necesitamos para este sprint
+la bd debe levantarse dentro de un contenedor docker para ser utilizada de manera local y remota
+docker-compose define los servicios de postgresql y pgadmin
+.env.example es un modelo de archivo de configuración de variables de entorno para que sepan como crear su usuario en la base, una vez accedan a ese archivo cambian el usuario y password y lo guardan como .env
+schema.sql es el script para crear las tablas que necesitamos para este sprint
+

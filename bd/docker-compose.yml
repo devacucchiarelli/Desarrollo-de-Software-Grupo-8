@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   db:
     image: postgres:16
@@ -9,6 +11,10 @@ services:
       POSTGRES_DB: futbol_db
     ports:
       - "5432:5432"
+    env_file:
+      - .env
+    ports:
+      - "${POSTGRES_PORT}:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
 

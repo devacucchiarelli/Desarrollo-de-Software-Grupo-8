@@ -1,18 +1,28 @@
 import { Link } from 'react-router-dom'
 import './App.css'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./pages/home.jsx";
+import Registro from './Registro.jsx'
+import ListaUsuarios from './ListaUsuarios.jsx'
 
 function App() {
+
+  const [count, setCount] = useState(0)
+
+  const isAdmin = true; //hardcodeado por ahora
+
   return (
-    <div style={{ padding: 20 }}>
-      <h1>Frontend de Torneos funcionando ⚽🚀</h1>
-      <p>
-        <Link to="/registro">Ir al Registro</Link>
-      </p>
-      <p>
-        <Link to="/usuarios">Ver usuarios registrados</Link>
-      </p>
-    </div>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home isAdmin={isAdmin} />} />
+        <Route path="/registro" element={<Registro isAdmin={isAdmin} />} />
+        <Route path="/usuarios" element={<ListaUsuarios isAdmin={isAdmin} />} />
+      </Routes>
+    </BrowserRouter>
+  );
+
 }
+
+
 
 export default App
