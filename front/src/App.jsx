@@ -1,11 +1,12 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { Link } from 'react-router-dom'
 import './App.css'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/home.jsx";
+import Registro from './Registro.jsx'
+import ListaUsuarios from './ListaUsuarios.jsx'
 
 function App() {
+
   const [count, setCount] = useState(0)
 
   const isAdmin = true; //hardcodeado por ahora
@@ -14,6 +15,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home isAdmin={isAdmin} />} />
+        <Route path="/registro" element={<Registro isAdmin={isAdmin} />} />
+        <Route path="/usuarios" element={<ListaUsuarios isAdmin={isAdmin} />} />
       </Routes>
     </BrowserRouter>
   );
