@@ -1,16 +1,20 @@
 version: "3.9"
-
 services:
   db:
     image: postgres:16
     container_name: futbol_db
     restart: unless-stopped
-    env_file:
-      - .env
+    environment:
+      POSTGRES_USER: alejandro
+      POSTGRES_PASSWORD: clave123
+      POSTGRES_DB: futbol_db
+      POSTGRES_HOST_AUTH_METHOD: md5
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./init-auth.sql:/docker-entrypoint-initdb.d/02-init-auth.sql
 
 volumes:
   db_data:

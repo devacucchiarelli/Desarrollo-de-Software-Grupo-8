@@ -1,0 +1,363 @@
+/* equipo.css */
+
+.equipo-container {
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(5px);
+  position: relative;
+  z-index: 1;
+}
+
+.equipo-card {
+  max-width: 1200px;
+  width: 95%;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 2;
+}
+
+.volver-btn {
+  background: linear-gradient(135deg, #000000 0%, #333333 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.volver-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(135deg, #333333 0%, #555555 100%);
+}
+
+.equipo-title {
+  color: #000000;
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 30px;
+  text-align: center;
+  background: linear-gradient(135deg, #000000 0%, #444444 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.jugadores-section {
+  margin-bottom: 30px;
+}
+
+.jugadores-title {
+  color: #222222;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 10px;
+}
+
+.jugadores-list {
+  list-style: none;
+  padding: 0;
+}
+
+.jugador-item {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 15px;
+  padding: 15px 20px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+.jugador-item:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  border-color: rgba(0, 0, 0, 0.25);
+}
+
+.jugador-info {
+  color: #111111;
+  font-weight: 500;
+}
+
+.eliminar-btn {
+  background: linear-gradient(135deg, #222222 0%, #555555 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.eliminar-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #444444 0%, #666666 100%);
+}
+
+.agregar-btn {
+  background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+  color: #222222;
+  border: 2px solid #000000;
+  padding: 15px 30px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  margin-top: 20px;
+}
+
+.agregar-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #000000 0%, #333333 100%);
+  color: white;
+}
+
+/* Modal estilos */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.modal-title {
+  color: #111111;
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.modal-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+}
+
+.modal-item {
+  background: rgba(248, 248, 248, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 12px 15px;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+}
+
+.modal-item:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.modal-item label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: #222222;
+  font-weight: 500;
+}
+
+.modal-item input[type="checkbox"] {
+  margin-right: 12px;
+  transform: scale(1.2);
+  accent-color: #000000;
+}
+
+.modal-agregar-btn {
+  background: linear-gradient(135deg, #000000 0%, #333333 100%);
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  width: 100%;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.modal-agregar-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(135deg, #333333 0%, #555555 100%);
+}
+
+/* Formulario de crear equipo */
+.crear-equipo-form {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 700px;
+  width: 90%;
+  margin: 50px auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.crear-equipo-input {
+  width: 100%;
+  padding: 15px 20px;
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  border-radius: 25px;
+  font-size: 16px;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+  box-sizing: border-box;
+  color: #222222;
+}
+
+.crear-equipo-input:focus {
+  outline: none;
+  border-color: #000000;
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.crear-equipo-input::placeholder {
+  color: #666666;
+}
+
+.crear-equipo-btn {
+  background: linear-gradient(135deg, #000000 0%, #333333 100%);
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  width: 100%;
+}
+
+.crear-equipo-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(135deg, #333333 0%, #555555 100%);
+}
+
+.mensaje {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 10px;
+  background: rgba(245, 245, 245, 0.9);
+  color: #222222;
+  font-weight: 500;
+  text-align: center;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.equipo-card,
+.crear-equipo-form {
+  animation: fadeIn 0.6s ease-out;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .equipo-container {
+    padding: 10px;
+  }
+  
+  .equipo-card,
+  .crear-equipo-form {
+    padding: 20px;
+    margin: 20px auto;
+  }
+  
+  .equipo-title {
+    font-size: 2rem;
+  }
+  
+  .jugador-item {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+  
+  .modal-content {
+    padding: 20px;
+    width: 95%;
+  }
+}
+
+/* Reset para evitar duplicaciones */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Asegurar que no hay elementos flotantes */
+.equipo-container::before,
+.equipo-container::after {
+  content: "";
+  display: table;
+  clear: both;
+}
