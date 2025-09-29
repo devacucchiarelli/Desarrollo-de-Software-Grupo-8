@@ -20,6 +20,43 @@ export default function ListaUsuarios() {
           </li>
         ))}
       </ul>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "10px", // espacio entre los botones
+          alignItems: "center", // opcional, centra horizontalmente
+        }}
+      >
+        <a
+          href="/registro"
+          style={{
+            backgroundColor: "black",
+            color: "white",
+            padding: "4px 8px",
+            borderRadius: "4px",
+            textDecoration: "none",
+            cursor: "pointer",
+          }}
+        >
+          Crear nuevo usuario
+        </a>
+
+        <a
+          href="/"
+          style={{
+            backgroundColor: "black",
+            color: "white",
+            padding: "4px 8px",
+            borderRadius: "4px",
+            textDecoration: "none",
+            cursor: "pointer",
+          }}
+        >
+          Volver
+        </a>
+      </div>
+
     </div>
   )
 }

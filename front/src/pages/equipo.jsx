@@ -152,14 +152,19 @@ export default function Page() {
                             {jugadoresDelEquipo.map((jugador, idx) => (
                                 <li key={idx} className="jugador-item">
                                     <div className="jugador-info">
-                                        <strong>{jugador.nombre}</strong> • DNI: {jugador.dni} • {jugador.email}
+                                        <strong>{jugador.nombre}</strong> • {jugador.email}
+                                        {parseInt(jugador.id_usuario) === parseInt(idCapitan) }
                                     </div>
-                                    <button
-                                        className="eliminar-btn"
-                                        onClick={() => handleEliminarJugador(jugador.id_usuario)}
-                                    >
-                                        Eliminar
-                                    </button>
+                                    {parseInt(jugador.id_usuario) !== parseInt(idCapitan) ? (
+                                        <button
+                                            className="eliminar-btn"
+                                            onClick={() => handleEliminarJugador(jugador.id_usuario)}
+                                        >
+                                            Eliminar
+                                        </button>
+                                    ) : (
+                                        <span className="capitan-text">Capitán</span>
+                                    )}
                                 </li>
                             ))}
                         </ul>
@@ -176,8 +181,7 @@ export default function Page() {
                                 <ul className="modal-list">
                                     {jugadoresDisponibles
                                         .filter(j => {
-                                            // Filtrar jugadores que NO están en el equipo
-                                            // Ambos usan id_usuario
+                               
                                             const estaEnEquipo = jugadoresDelEquipo.some(jd => 
                                                 parseInt(jd.id_usuario) === parseInt(j.id_usuario)
                                             );

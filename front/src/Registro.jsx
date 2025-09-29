@@ -13,22 +13,22 @@ export default function Registro() {
   }
 
   const handleSubmit = async (e) => {
-  e.preventDefault()
-  
-  try {
-    const response = await fetch('http://localhost:3000/api/usuarios', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    })
+    e.preventDefault()
 
-    const data = await response.json()
-    if (!response.ok) throw new Error(data.error || 'Error al registrar usuario')
+    try {
+      const response = await fetch('http://localhost:3000/api/usuarios', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
 
-    alert('Usuario registrado correctamente')
-    setFormData({ nombre: '', email: '', password: '', rol: 'jugador' })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Error al registrar usuario')
+
+      alert('Usuario registrado correctamente')
+      setFormData({ nombre: '', email: '', password: '', rol: 'jugador' })
     } catch (error) {
-    alert(error.message)
+      alert(error.message)
     }
   }
 
@@ -48,6 +48,20 @@ export default function Registro() {
         <br />
         <button type="submit">Registrarme</button>
       </form>
+      <a
+        href="/usuarios"
+        style={{
+          backgroundColor: "black",
+          color: "white",
+          padding: "4px 8px",
+          borderRadius: "4px",
+          textDecoration: "none",
+          display: "inline-block",
+          cursor: "pointer"
+        }}
+      >
+        Volver
+      </a>
     </div>
   )
 }

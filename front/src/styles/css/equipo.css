@@ -6,20 +6,25 @@
   backdrop-filter: blur(5px);
   position: relative;
   z-index: 1;
+  height: 91vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .equipo-card {
-  max-width: 1200px;
+  max-width: 1000px;
   width: 95%;
-  margin: 0 auto;
+  max-height: 82vh;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 20px;
-  padding: 40px;
+  padding: 30px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(0, 0, 0, 0.1);
   position: relative;
   z-index: 2;
+  overflow-y: auto;
 }
 
 .volver-btn {
@@ -69,7 +74,31 @@
 
 .jugadores-list {
   list-style: none;
-  padding: 0;
+  padding: 10px;
+  margin: 0;
+  max-height: 180px;
+  overflow-y: auto;
+  background: rgba(248, 248, 248, 0.3);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 15px;
+}
+
+.jugadores-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.jugadores-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.jugadores-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+}
+
+.jugadores-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .jugador-item {
@@ -85,6 +114,10 @@
   backdrop-filter: blur(5px);
 }
 
+.jugador-item:last-child {
+  margin-bottom: 0;
+}
+
 .jugador-item:hover {
   background: rgba(255, 255, 255, 1);
   transform: translateY(-2px);
@@ -97,8 +130,24 @@
   font-weight: 500;
 }
 
+.capitan-badge {
+  color: #d4af37;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+.capitan-text {
+  color: #d4af37;
+  font-style: italic;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
 .eliminar-btn {
-  background: linear-gradient(135deg, #222222 0%, #555555 100%);
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
   color: white;
   border: none;
   padding: 8px 16px;
@@ -107,13 +156,13 @@
   font-size: 14px;
   font-weight: 500;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 10px rgba(220, 53, 69, 0.3);
 }
 
 .eliminar-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(135deg, #444444 0%, #666666 100%);
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+  background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%);
 }
 
 .agregar-btn {
@@ -330,6 +379,10 @@
   
   .equipo-title {
     font-size: 2rem;
+  }
+  
+  .jugadores-list {
+    max-height: 200px;
   }
   
   .jugador-item {
