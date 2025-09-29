@@ -1,6 +1,8 @@
 const express = require('express');
 const equiposRouter = require('./src/routes/equipoRoute.js');
 const torneoRouter = require('./src/routes/torneoRoute.js')
+const inscripcionesRouter = require('./src/routes/inscripciones.router.js')
+
 const cors = require('cors');
 const app = express();
 
@@ -14,7 +16,7 @@ app.use(cors({ origin: 'http://localhost:5173' })); // puerto del frontend
 
 app.use('/equipos', equiposRouter);
 app.use('/torneo', torneoRouter);
-
+app.use('/incripciones', inscripcionesRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
