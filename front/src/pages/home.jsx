@@ -110,7 +110,7 @@ function Home({ isAdmin }) {
 
   const handleDelete = async () => {
     try {
-      await fetch(`http://localhost:3000/torneo/torneos/${torneo.id_torneo}`, {
+      await fetch(`http://localhost:3000/torneo/${torneo.id_torneo}`, {
         method: 'DELETE',
       });
       setTorneo(null);
@@ -127,7 +127,7 @@ function Home({ isAdmin }) {
           <a href="/">TORNEO</a>
         </div>
         <nav className="header-nav">
-          <a href="#" className="btn">Torneos</a>
+          <a href="torneo" className="btn">Torneos</a>
           <a href="equipo" className="btn">Equipo</a>
           <a href="#" className="btn">Estadísticas</a>
           <a href="usuarios" className="btn">Usuarios</a>

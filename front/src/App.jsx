@@ -2,8 +2,9 @@ import './App.css'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/home.jsx";
 import Registro from './Registro.jsx'
-import ListaUsuarios from './ListaUsuarios.jsx'
+import ListaUsuarios from './pages/ListaUsuarios.jsx'
 import Equipo from "./pages/equipo.jsx";
+import Torneos from "./pages/torneo.jsx";
 
 import React, { useState } from 'react';
 
@@ -20,6 +21,7 @@ function App() {
         <Route path="/registro" element={<Registro isAdmin={isAdmin} />} />
         <Route path="/usuarios" element={<ListaUsuarios isAdmin={isAdmin} />} />
         <Route path="/equipo" element={<Equipo isAdmin={isAdmin} />} />
+        <Route path="/torneo" element={<Torneos isAdmin={isAdmin} />} />
       </Routes>
     </BrowserRouter>
   );

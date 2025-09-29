@@ -1,6 +1,6 @@
 
 // back/services/inscripciones.services.js
-const { pool } = require('../../db');
+const  pool  = require('../models/db');
 
 
 
