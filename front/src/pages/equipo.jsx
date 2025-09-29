@@ -11,17 +11,27 @@ export default function Page() {
     const [jugadoresSeleccionados, setJugadoresSeleccionados] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [jugadoresDelEquipo, setJugadoresDelEquipo] = useState([]);
+    const [jugadoresDisponibles, setJugadoresDisponibles] = useState([]);
 
     const idCapitan = "2"; // hardcodeado por ahora
 
-    // Lista de jugadores hardcodeada
-    const jugadoresDisponibles = [
-        { id: 1, nombre: "Juan Pérez", dni: "12345678" },
-        { id: 2, nombre: "María Gómez", dni: "87654321" },
-        { id: 3, nombre: "Carlos López", dni: "11223344" },
-    ];
+    // Traer todos los jugadores
+    useEffect(() => {
+        async function fetchJugadores() {
+            try {
+                const res = await fetch("http://localhost:3000/api/usuarios");
+                if (!res.ok) throw new Error("Error al cargar jugadores");
+                const data = await res.json();
+                console.log('Jugadores disponibles:', data);
+                setJugadoresDisponibles(data);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        fetchJugadores();
+    }, []);
 
-    // Ver si el capitán ya tiene un equipo
+    // Traer equipo del capitán y jugadores del equipo
     useEffect(() => {
         async function fetchMiEquipo() {
             try {
@@ -29,13 +39,12 @@ export default function Page() {
                 const data = await res.json();
                 setMiEquipo(data);
 
-                // Traer jugadores del equipo
                 if (data && data.id_equipo) {
                     const resJugadores = await fetch(`http://localhost:3000/equipos/jugadores/${data.id_equipo}`);
                     const jugadores = await resJugadores.json();
+                    console.log('Jugadores del equipo:', jugadores);
                     setJugadoresDelEquipo(jugadores);
                 }
-
             } catch (err) {
                 console.error(err);
             }
@@ -67,17 +76,19 @@ export default function Page() {
     };
 
     const toggleJugador = (id) => {
+        // Asegurarnos de que el id sea siempre número
+        const jugadorId = parseInt(id);
+        console.log('Toggling jugador:', jugadorId, 'Current selected:', jugadoresSeleccionados);
+        
         setJugadoresSeleccionados((prev) =>
-            prev.includes(id)
-                ? prev.filter((jugadorId) => jugadorId !== id)
-                : [...prev, id]
+            prev.includes(jugadorId)
+                ? prev.filter((selectedId) => selectedId !== jugadorId)
+                : [...prev, jugadorId]
         );
     };
 
     const handleAgregarJugadores = async () => {
-        if (!miEquipo || jugadoresSeleccionados.length === 0) {
-            return;
-        }
+        if (!miEquipo || jugadoresSeleccionados.length === 0) return;
 
         const payload = {
             id_equipo: miEquipo.id_equipo,
@@ -96,9 +107,11 @@ export default function Page() {
             const data = await res.json();
             setJugadoresSeleccionados([]);
             setShowModal(false);
-
-            // Actualizamos la lista de jugadores del equipo
-            setJugadoresDelEquipo((prev) => [...prev, ...data.jugadores_agregados]);
+            
+            // Refrescar la lista de jugadores del equipo
+            const resJugadores = await fetch(`http://localhost:3000/equipos/jugadores/${miEquipo.id_equipo}`);
+            const jugadoresActualizados = await resJugadores.json();
+            setJugadoresDelEquipo(jugadoresActualizados);
         } catch (err) {
             console.error(err);
         }
@@ -115,7 +128,6 @@ export default function Page() {
 
             if (!res.ok) throw new Error("Error al eliminar jugador");
 
-            // Actualizamos la lista local
             setJugadoresDelEquipo((prev) =>
                 prev.filter((jugador) => jugador.id_usuario !== idJugador)
             );
@@ -133,7 +145,7 @@ export default function Page() {
                     </button>
 
                     <h2 className="equipo-title">Mi equipo: {miEquipo.nombre_equipo}</h2>
-                    
+
                     <div className="jugadores-section">
                         <h3 className="jugadores-title">Jugadores del equipo</h3>
                         <ul className="jugadores-list">
@@ -162,19 +174,32 @@ export default function Page() {
                             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                                 <h3 className="modal-title">Seleccionar jugadores</h3>
                                 <ul className="modal-list">
-                                    {jugadoresDisponibles.map((jugador) => (
-                                        <li key={jugador.id} className="modal-item">
-                                            <label>
-                                                <input
-                                                    type="checkbox"
-                                                    value={jugador.id}
-                                                    checked={jugadoresSeleccionados.includes(jugador.id)}
-                                                    onChange={() => toggleJugador(jugador.id)}
-                                                />
-                                                {jugador.nombre} (DNI: {jugador.dni})
-                                            </label>
-                                        </li>
-                                    ))}
+                                    {jugadoresDisponibles
+                                        .filter(j => {
+                                            // Filtrar jugadores que NO están en el equipo
+                                            // Ambos usan id_usuario
+                                            const estaEnEquipo = jugadoresDelEquipo.some(jd => 
+                                                parseInt(jd.id_usuario) === parseInt(j.id_usuario)
+                                            );
+                                            return !estaEnEquipo;
+                                        })
+                                        .map((jugador) => {
+                                            const jugadorId = parseInt(jugador.id_usuario);
+                                            const estaSeleccionado = jugadoresSeleccionados.includes(jugadorId);
+                                            
+                                            return (
+                                                <li key={jugadorId} className="modal-item">
+                                                    <label>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={estaSeleccionado}
+                                                            onChange={() => toggleJugador(jugadorId)}
+                                                        />
+                                                        {jugador.nombre} (Email: {jugador.email})
+                                                    </label>
+                                                </li>
+                                            );
+                                        })}
                                 </ul>
                                 <button className="modal-agregar-btn" onClick={handleAgregarJugadores}>
                                     Agregar seleccionados

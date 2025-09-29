@@ -9,6 +9,10 @@ async function crearEquipoService(nombre_equipo, id_capitan) {
   return nuevoEquipo;
 }
 
+async function getUsuarioPorIdService(id) {
+  return await equipoModel.getUsuarioPorId(id)
+}
+
 async function getEquipoPorCapitanService(id_capitan) {
   return await equipoModel.findEquipoByCapitan(id_capitan);
 }
@@ -38,5 +42,6 @@ module.exports = {
   getTodosLosEquiposService,
   agregarJugadoresService,
   getJugadoresEquipoService,
-  eliminarJugadorService
+  eliminarJugadorService,
+  getUsuarioPorIdService
 };

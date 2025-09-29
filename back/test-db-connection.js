@@ -10,10 +10,10 @@ const configs = [
 
 async function testConnection(configName, host) {
   const pool = new Pool({
-    user: 'alejandro',
+    user: 'admin',
     host: host,
     database: 'futbol_db',
-    password: 'clave123',
+    password: 'admin123',
     port: 5432,
     ssl: false,
     connectionTimeoutMillis: 3000

@@ -59,10 +59,23 @@ async function eliminarJugador  (idEquipo, idJugador) {
   return result.rows[0];
 };
 
+async function getUsuarioPorId(id) {
+  const result = await pool.query(
+    `SELECT u.id_usuario
+     FROM jugadores_equipo je
+     JOIN usuarios u ON je.id_jugador = u.id_usuario
+     WHERE u.id_usuario = $1`,
+    [id] // usamos el parámetro que recibimos
+  );
+  return result.rows[0]; // devuelve un solo usuario
+}
+
+
 module.exports = { crearEquipo, 
   findEquipoByCapitan, 
   findAllEquipos, 
   agregarJugadoresAEquipo, 
   getJugadoresEquipo, 
-  eliminarJugador 
+  eliminarJugador,
+  getUsuarioPorId
 };

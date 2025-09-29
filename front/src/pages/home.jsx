@@ -34,7 +34,7 @@ function Home({ isAdmin }) {
           <a href="#" className="btn">Torneos</a>
           <a href="equipo" className="btn">Equipo</a>
           <a href="#" className="btn">Estadísticas</a>
-          <a href="#" className="btn btn-login">Login</a>
+          <a href="registro" className="btn btn-login">Login</a>
         </nav>
       </header>
 

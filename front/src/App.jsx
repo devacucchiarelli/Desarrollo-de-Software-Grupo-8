@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import './App.css'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/home.jsx";
@@ -6,6 +5,7 @@ import Registro from './Registro.jsx'
 import ListaUsuarios from './ListaUsuarios.jsx'
 import Equipo from "./pages/equipo.jsx";
 
+import React, { useState } from 'react';
 
 function App() {
 

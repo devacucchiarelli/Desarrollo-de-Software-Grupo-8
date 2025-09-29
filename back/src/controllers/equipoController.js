@@ -4,8 +4,11 @@ const {
   getTodosLosEquiposService,
   agregarJugadoresService,
   getJugadoresEquipoService,
-  eliminarJugadorService
+  eliminarJugadorService,
+  getUsuarioPorIdService
 } = require('../services/equipoService.js');
+
+
 
 async function crearEquipoController(req, res) {
   const { nombre_equipo, id_capitan } = req.body;
@@ -69,8 +72,8 @@ async function agregarJugadoresController(req, res) {
     // Traemos los datos completos de los jugadores agregados
     const jugadoresAgregados = await Promise.all(
       jugadoresIds.map(async (id) => {
-        const jugador = await getUsuarioPorId(id); // función que devuelve {nombre, email, dni}
-        return jugador;
+        const jugador = await getUsuarioPorIdService(id); // función que devuelve {nombre, email, dni}
+        return jugador; 
       })
     );
 
