@@ -1,5 +1,9 @@
 import { useState } from "react";
 import '../styles/home.css'; 
+import InscripcionEquipo from "../components/InscripcionEquipo";
+
+
+
 
 function Home({ isAdmin }) {
   const [torneo, setTorneo] = useState(null);
@@ -8,6 +12,7 @@ function Home({ isAdmin }) {
   const [formData, setFormData] = useState({
     nombre: "", fechaInicio: "", fechaFin: "", formato: "", tipo: "", inscripcion: "", costo: "",
   });
+  const [mostrarInscripcion, setMostrarInscripcion] = useState(false);
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -67,18 +72,23 @@ function Home({ isAdmin }) {
           )}
 
           {/* --- VISTA CUANDO NO HAY TORNEO --- */}
-          {!torneo && !mostrarForm && (
-            <>
-            <div className="torneo-card no-torneo-card">
-              <p className="no-torneo-text">Lo sentimos, por el momento no tenemos ningún torneo agendado. Mientras tanto podes mirar estadísticas y torneos!</p>
-              {isAdmin && (
-                <button onClick={() => setMostrarForm(true)} className="btn btn-create">
-                  ➕ Crear Nuevo Torneo
-                </button>
-              )}
-            </div>
-            </>
-          )}
+        {!torneo && !mostrarForm && (
+  <div className="torneo-card no-torneo-card">
+    <p className="no-torneo-text">
+      Lo sentimos, por el momento no tenemos ningún torneo agendado. Mientras tanto podes mirar estadísticas y torneos!
+    </p>
+    {isAdmin && (
+      <div className="torneo-card-buttons">
+        <button onClick={() => setMostrarForm(true)} className="btn btn-create">
+          ➕ Crear Nuevo Torneo
+        </button>
+        <button className="btn" onClick={() => setMostrarInscripcion(true)}>
+          Inscripción a Torneo
+        </button>
+      </div>
+    )}
+  </div>
+)}
 
           {/* --- FORMULARIO DE CREACIÓN/EDICIÓN --- */}
           {isAdmin && mostrarForm && (
@@ -108,6 +118,7 @@ function Home({ isAdmin }) {
         </div>
       </div>
     </>
+    
   );
 }
 
