@@ -11,7 +11,8 @@ export default function Torneos() {
     })
 
     const ID_EQUIPO = 2; // ID hardcodeado del equipo
-
+    const API_TORNEOS = 'http://localhost:3000/torneo';
+    const API_INSCRIPCIONES = 'http://localhost:3000/inscripciones';
     useEffect(() => {
         cargarTorneos()
         cargarInscripciones()
@@ -19,132 +20,81 @@ export default function Torneos() {
 
     const cargarTorneos = async () => {
         try {
-            const response = await fetch('http://localhost:3000/torneo')
-
-            if (!response.ok) {
-                throw new Error(`Error ${response.status}: ${response.statusText}`)
-            }
-
-            const data = await response.json()
-            console.log('Datos recibidos:', data)
-
-            if (Array.isArray(data)) {
-                setTorneos(data)
-            } else {
-                setTorneos([])
-                console.warn('La respuesta no es un array:', data)
-            }
-
-            setError(null)
-        } catch (error) {
-            console.error('Error al cargar torneos:', error)
-            setError(error.message)
-            setTorneos([])
+            const response = await fetch(API_TORNEOS, { credentials: 'include' });
+            if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+            const data = await response.json();
+            setTorneos(Array.isArray(data) ? data : []);
+            setError(null);
+        } catch (err) {
+            console.error('Error al cargar torneos:', err);
+            setError(err.message);
+            setTorneos([]);
         }
     }
 
     const cargarInscripciones = async () => {
         try {
-            const response = await fetch('http://localhost:3000/incripciones')
-            
-            if (!response.ok) {
-                console.error('Error al cargar inscripciones')
-                return
-            }
-
-            const inscripciones = await response.json()
-            console.log('Inscripciones recibidas:', inscripciones)
-
-            // Filtrar las inscripciones de mi equipo y crear un mapa
-            const inscripcionesMap = {}
-            
-            if (Array.isArray(inscripciones)) {
-                inscripciones.forEach(inscripcion => {
-                    // Verificar si la inscripción pertenece a mi equipo (ID_EQUIPO = 2)
-                    if (inscripcion.id_equipo === ID_EQUIPO || inscripcion.equipoId === ID_EQUIPO) {
-                        const torneoId = inscripcion.id_torneo || inscripcion.torneoId
-                        inscripcionesMap[torneoId] = true
-                    }
-                })
-            }
-
-            console.log('Equipos inscritos por torneo:', inscripcionesMap)
-            setEquiposInscritos(inscripcionesMap)
-        } catch (error) {
-            console.error('Error al cargar inscripciones:', error)
+            const response = await fetch(API_INSCRIPCIONES, { credentials: 'include' });
+            if (!response.ok) throw new Error('Error al cargar inscripciones');
+            const inscripciones = await response.json();
+            const inscripcionesMap = {};
+            inscripciones.forEach(ins => {
+                const torneoId = ins.id_torneo || ins.torneoId;
+                if (ins.id_equipo === ID_EQUIPO || ins.equipoId === ID_EQUIPO) {
+                    inscripcionesMap[torneoId] = true;
+                }
+            });
+            setEquiposInscritos(inscripcionesMap);
+        } catch (err) {
+            console.error('Error al cargar inscripciones:', err);
         }
-    }
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value })
     }
 
     const registrarEquipo = async (idTorneo) => {
-        // Verificar si ya está inscrito antes de intentar registrar
-        if (equiposInscritos[idTorneo]) {
-            alert('Tu equipo ya está inscrito en este torneo')
-            return
-        }
-
+        if (equiposInscritos[idTorneo]) return alert('Tu equipo ya está inscrito en este torneo');
         try {
-            const response = await fetch('http://localhost:3000/incripciones', {
+            const response = await fetch(API_INSCRIPCIONES, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    torneoId: idTorneo,
-                    equipoId: ID_EQUIPO
-                }),
-            })
-
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ torneoId: idTorneo, equipoId: ID_EQUIPO })
+            });
             if (response.ok) {
-                alert('Equipo registrado exitosamente!')
-                // Actualizar el estado local
-                setEquiposInscritos(prev => ({
-                    ...prev,
-                    [idTorneo]: true
-                }))
-                // Recargar inscripciones para estar sincronizado
-                cargarInscripciones()
+                alert('Equipo registrado exitosamente!');
+                setEquiposInscritos(prev => ({ ...prev, [idTorneo]: true }));
+                cargarInscripciones();
             } else {
-                const errorData = await response.json()
-                alert(`Error: ${errorData.error || 'No se pudo registrar el equipo'}`)
+                const errorData = await response.json();
+                alert(`Error: ${errorData.error || 'No se pudo registrar el equipo'}`);
             }
-        } catch (error) {
-            console.error('Error al registrar equipo:', error)
-            alert('Error al registrar el equipo')
+        } catch (err) {
+            console.error('Error al registrar equipo:', err);
+            alert('Error al registrar el equipo');
         }
     }
 
     const handleSubmit = async (e) => {
-        e.preventDefault()
-
+        e.preventDefault();
         try {
-            const response = await fetch('http://localhost:3000/torneo', {
+            const response = await fetch(API_TORNEOS, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify({
                     nombre_torneo: formData.nombre,
                     fecha_inicio: formData.fechaInicio,
                     fecha_fin: formData.fechaFin,
                     tipo_torneo: formData.tipo,
                     formato: formData.formato
-                }),
-            })
-
-            if (response.ok) {
-                setMostrarForm(false)
-                setFormData({ nombre: "", fechaInicio: "", fechaFin: "", formato: "", tipo: "" })
-                cargarTorneos()
-            } else {
-                alert('Error al crear el torneo')
-            }
-        } catch (error) {
-            console.error('Error al crear torneo:', error)
-            alert('Error al crear el torneo')
+                })
+            });
+            if (!response.ok) throw new Error('Error al crear el torneo');
+            setMostrarForm(false);
+            setFormData({ nombre: "", fechaInicio: "", fechaFin: "", formato: "", tipo: "" });
+            cargarTorneos();
+        } catch (err) {
+            console.error('Error al crear torneo:', err);
+            alert(err.message);
         }
     }
 

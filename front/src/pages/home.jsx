@@ -10,6 +10,7 @@ function Home({ isAdmin }) {
   const [formData, setFormData] = useState({
     nombre: "", fechaInicio: "", fechaFin: "", formato: "", tipo: "",
   });
+  const [error, setError] = useState("");
 
   // Cargar torneo al iniciar
   useEffect(() => {
@@ -18,7 +19,13 @@ function Home({ isAdmin }) {
 
   const cargarTorneo = async () => {
     try {
-      const response = await fetch(API_URL);
+      const response = await fetch(API_URL, {
+        method: 'GET',
+        credentials: 'include', // ✅ enviar cookies de sesión
+      });
+
+      if (!response.ok) throw new Error('No autorizado o error al cargar torneos');
+
       const data = await response.json();
       
       if (data.length > 0) {
@@ -35,11 +42,13 @@ function Home({ isAdmin }) {
           return hoy >= inicio && hoy <= fin;
         });
         
-        // Solo mostrar si hay torneo activo
         setTorneo(torneoActivo || null);
+      } else {
+        setTorneo(null);
       }
     } catch (error) {
       console.error('Error al cargar torneo:', error);
+      setError(error.message);
     }
   };
 
@@ -49,50 +58,33 @@ function Home({ isAdmin }) {
     e.preventDefault();
     
     try {
-      if (editando) {
-        // Editar torneo existente
-        const response = await fetch(`${API_URL}/${torneo.id_torneo}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            nombre_torneo: formData.nombre,
-            fecha_inicio: formData.fechaInicio,
-            fecha_fin: formData.fechaFin,
-            tipo_torneo: formData.tipo,
-            formato: formData.formato
-          }),
-        });
-        
-        const torneoActualizado = await response.json();
-        setTorneo(torneoActualizado);
-      } else {
-        // Crear nuevo torneo
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            nombre_torneo: formData.nombre,
-            fecha_inicio: formData.fechaInicio,
-            fecha_fin: formData.fechaFin,
-            tipo_torneo: formData.tipo,
-            formato: formData.formato
-          }),
-        });
-        
-        const nuevoTorneo = await response.json();
-        setTorneo(nuevoTorneo);
-      }
-      
+      const options = {
+        method: editando ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          nombre_torneo: formData.nombre,
+          fecha_inicio: formData.fechaInicio,
+          fecha_fin: formData.fechaFin,
+          tipo_torneo: formData.tipo,
+          formato: formData.formato
+        }),
+      };
+
+      const url = editando ? `${API_URL}/${torneo.id_torneo}` : API_URL;
+      const response = await fetch(url, options);
+
+      if (!response.ok) throw new Error('Error al guardar torneo');
+
+      const torneoGuardado = await response.json();
+      setTorneo(torneoGuardado);
       setMostrarForm(false);
       setEditando(false);
       setFormData({ nombre: "", fechaInicio: "", fechaFin: "", formato: "", tipo: "" });
       cargarTorneo();
     } catch (error) {
       console.error('Error al guardar torneo:', error);
+      setError(error.message);
     }
   };
 
@@ -110,18 +102,20 @@ function Home({ isAdmin }) {
 
   const handleDelete = async () => {
     try {
-      await fetch(`http://localhost:3000/torneo/${torneo.id_torneo}`, {
+      const response = await fetch(`${API_URL}/${torneo.id_torneo}`, {
         method: 'DELETE',
+        credentials: 'include', // ✅ enviar cookies
       });
+      if (!response.ok) throw new Error('Error al eliminar torneo');
       setTorneo(null);
     } catch (error) {
       console.error('Error al eliminar torneo:', error);
+      setError(error.message);
     }
   };
   
   return (
     <>
-      {/* ===== NUEVO HEADER ===== */}
       <header className="app-header">
         <div className="header-logo">
           <a href="/">TORNEO</a>
@@ -136,21 +130,18 @@ function Home({ isAdmin }) {
       </header>
 
       <div className="app-container">
+        {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
         <div className="main-content-wrapper">
-          <h1 className="main-title">
-            Bienvenido
-          </h1>
+          <h1 className="main-title">Bienvenido</h1>
 
-          {/* --- VISTA DEL TORNEO ACTIVO --- */}
           {torneo && !mostrarForm && (
-            <>
             <div className="torneo-card">
               <h2 className="torneo-name">{torneo.nombre_torneo}</h2>
               <div className="torneo-details">
-                  <p><span className="detail-label">Inicio:</span> {torneo.fecha_inicio_formato}</p>
-                  <p><span className="detail-label">Fin:</span> {torneo.fecha_fin_formato}</p>
-                  <p><span className="detail-label">Tipo:</span> {torneo.tipo_torneo}</p>
-                  <p><span className="detail-label">Formato:</span> {torneo.formato}</p>
+                <p><span className="detail-label">Inicio:</span> {torneo.fecha_inicio_formato}</p>
+                <p><span className="detail-label">Fin:</span> {torneo.fecha_fin_formato}</p>
+                <p><span className="detail-label">Tipo:</span> {torneo.tipo_torneo}</p>
+                <p><span className="detail-label">Formato:</span> {torneo.formato}</p>
               </div>
               {isAdmin && (
                 <div className="button-group">
@@ -159,58 +150,55 @@ function Home({ isAdmin }) {
                 </div>
               )}
             </div>
-            </>
           )}
 
-          {/* --- VISTA CUANDO NO HAY TORNEO --- */}
           {!torneo && !mostrarForm && (
-            <>
             <div className="torneo-card no-torneo-card">
-              <p className="no-torneo-text">Lo sentimos, por el momento no tenemos ningún torneo agendado. Mientras tanto podes mirar estadísticas y torneos!</p>
+              <p className="no-torneo-text">
+                Lo sentimos, por el momento no tenemos ningún torneo agendado.
+              </p>
               {isAdmin && (
                 <button onClick={() => setMostrarForm(true)} className="btn btn-create">
                   ➕ Crear Nuevo Torneo
                 </button>
               )}
             </div>
-            </>
           )}
 
-          {/* --- FORMULARIO DE CREACIÓN/EDICIÓN --- */}
           {isAdmin && mostrarForm && (
             <form onSubmit={handleSubmit} className="form-card">
               <h2 className={`form-title ${editando ? "title-edit" : "title-create"}`}>
                 {editando ? "✏️ Editar Torneo" : "➕ Crear Nuevo Torneo"}
               </h2>
               <div className="form-inputs-container">
-                  <input type="text" name="nombre" placeholder="Nombre del torneo" value={formData.nombre} onChange={handleChange} className="form-input-nombreTorneo" required />
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <label style={{ fontSize: '0.9rem', fontWeight: '500' }}>Fecha de inicio</label>
-                    <input type="date" name="fechaInicio" value={formData.fechaInicio} onChange={handleChange} className="form-input" required />
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <label style={{ fontSize: '0.9rem', fontWeight: '500' }}>Fecha de fin</label>
-                    <input type="date" name="fechaFin" value={formData.fechaFin} onChange={handleChange} className="form-input" required />
-                  </div>
-                  <select name="tipo" value={formData.tipo} onChange={handleChange} className="form-input" required>
-                    <option value="">Seleccionar tipo</option>
-                    <option value="futbol_5">Fútbol 5</option>
-                    <option value="futbol_7">Fútbol 7</option>
-                    <option value="futbol_11">Fútbol 11</option>
-                  </select>
-                  <select name="formato" value={formData.formato} onChange={handleChange} className="form-input" required>
-                    <option value="">Seleccionar formato</option>
-                    <option value="liga">Liga</option>
-                    <option value="eliminatoria">Eliminatoria</option>
-                  </select>
+                <input type="text" name="nombre" placeholder="Nombre del torneo" value={formData.nombre} onChange={handleChange} className="form-input-nombreTorneo" required />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <label style={{ fontSize: '0.9rem', fontWeight: '500' }}>Fecha de inicio</label>
+                  <input type="date" name="fechaInicio" value={formData.fechaInicio} onChange={handleChange} className="form-input" required />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <label style={{ fontSize: '0.9rem', fontWeight: '500' }}>Fecha de fin</label>
+                  <input type="date" name="fechaFin" value={formData.fechaFin} onChange={handleChange} className="form-input" required />
+                </div>
+                <select name="tipo" value={formData.tipo} onChange={handleChange} className="form-input" required>
+                  <option value="">Seleccionar tipo</option>
+                  <option value="futbol_5">Fútbol 5</option>
+                  <option value="futbol_7">Fútbol 7</option>
+                  <option value="futbol_11">Fútbol 11</option>
+                </select>
+                <select name="formato" value={formData.formato} onChange={handleChange} className="form-input" required>
+                  <option value="">Seleccionar formato</option>
+                  <option value="liga">Liga</option>
+                  <option value="eliminatoria">Eliminatoria</option>
+                </select>
               </div>
               <div className="button-group-footer">
-                  <button type="submit" className={`btn form-submit-btn ${editando ? "btn-edit-submit" : "btn-create-submit"}`}>
-                    {editando ? "Guardar Cambios" : "Crear Torneo"}
-                  </button>
-                  <button type="button" onClick={() => { setMostrarForm(false); setEditando(false); }} className="btn btn-cancel">
-                      Cancelar
-                  </button>
+                <button type="submit" className={`btn form-submit-btn ${editando ? "btn-edit-submit" : "btn-create-submit"}`}>
+                  {editando ? "Guardar Cambios" : "Crear Torneo"}
+                </button>
+                <button type="button" onClick={() => { setMostrarForm(false); setEditando(false); }} className="btn btn-cancel">
+                  Cancelar
+                </button>
               </div>
             </form>
           )}

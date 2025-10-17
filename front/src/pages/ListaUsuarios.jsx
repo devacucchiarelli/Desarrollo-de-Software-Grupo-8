@@ -4,11 +4,23 @@ export default function ListaUsuarios() {
   const [usuarios, setUsuarios] = useState([])
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/usuarios')
-      .then(res => res.json())
-      .then(data => setUsuarios(data))
-      .catch(err => console.error(err))
-  }, [])
+    const cargarUsuarios = async () => {
+      try {
+        const res = await fetch('http://localhost:3000/usuarios', {
+          method: 'GET',
+          credentials: 'include', // ✅ enviar cookies de sesión
+        });
+        if (!res.ok) throw new Error('No autorizado o error al obtener usuarios');
+        const data = await res.json();
+        setUsuarios(data);
+      } catch (err) {
+        console.error(err);
+        setError(err.message);
+      }
+    };
+
+    cargarUsuarios();
+  }, []);
 
   return (
     <div style={{ maxWidth: 400, margin: '2rem auto' }}>

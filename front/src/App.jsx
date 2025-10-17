@@ -5,6 +5,7 @@ import Registro from './Registro.jsx'
 import ListaUsuarios from './pages/ListaUsuarios.jsx'
 import Equipo from "./pages/equipo.jsx";
 import Torneos from "./pages/torneo.jsx";
+import LoginRegister from "./pages/LoginRegister.jsx"
 
 import React, { useState } from 'react';
 
@@ -22,6 +23,7 @@ function App() {
         <Route path="/usuarios" element={<ListaUsuarios isAdmin={isAdmin} />} />
         <Route path="/equipo" element={<Equipo isAdmin={isAdmin} />} />
         <Route path="/torneo" element={<Torneos isAdmin={isAdmin} />} />
+        <Route path="/login" element={<LoginRegister isAdmin={isAdmin} />} />
       </Routes>
     </BrowserRouter>
   );

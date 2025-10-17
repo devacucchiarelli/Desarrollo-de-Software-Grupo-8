@@ -4,137 +4,143 @@ import "../styles/css/equipo.css";
 import { useNavigate } from "react-router-dom";
 
 export default function Page() {
-    const navigate = useNavigate();
-    const [nombreEquipo, setNombreEquipo] = useState("");
-    const [miEquipo, setMiEquipo] = useState(null);
-    const [mensaje, setMensaje] = useState("");
-    const [jugadoresSeleccionados, setJugadoresSeleccionados] = useState([]);
-    const [showModal, setShowModal] = useState(false);
-    const [jugadoresDelEquipo, setJugadoresDelEquipo] = useState([]);
-    const [jugadoresDisponibles, setJugadoresDisponibles] = useState([]);
+  const navigate = useNavigate();
+  const [nombreEquipo, setNombreEquipo] = useState("");
+  const [miEquipo, setMiEquipo] = useState(null);
+  const [mensaje, setMensaje] = useState("");
+  const [jugadoresSeleccionados, setJugadoresSeleccionados] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [jugadoresDelEquipo, setJugadoresDelEquipo] = useState([]);
+  const [jugadoresDisponibles, setJugadoresDisponibles] = useState([]);
 
-    const idCapitan = "2"; // hardcodeado por ahora
+  const idCapitan = "2"; // temporal
 
-    // Traer todos los jugadores
-    useEffect(() => {
-        async function fetchJugadores() {
-            try {
-                const res = await fetch("http://localhost:3000/api/usuarios");
-                if (!res.ok) throw new Error("Error al cargar jugadores");
-                const data = await res.json();
-                console.log('Jugadores disponibles:', data);
-                setJugadoresDisponibles(data);
-            } catch (error) {
-                console.error(error);
-            }
+  // Traer todos los jugadores
+  useEffect(() => {
+    async function fetchJugadores() {
+      try {
+        const res = await fetch("http://localhost:3000/usuarios", {
+          credentials: "include", // 👈 ENVÍA COOKIE
+        });
+        if (!res.ok) throw new Error("Error al cargar jugadores");
+        const data = await res.json();
+        setJugadoresDisponibles(data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    fetchJugadores();
+  }, []);
+
+  // Traer equipo del capitán y jugadores del equipo
+  useEffect(() => {
+    async function fetchMiEquipo() {
+      try {
+        const res = await fetch(`http://localhost:3000/equipos/mi-equipo/${idCapitan}`, {
+          credentials: "include", // 👈 ENVÍA COOKIE
+        });
+        const data = await res.json();
+        setMiEquipo(data);
+
+        if (data && data.id_equipo) {
+          const resJugadores = await fetch(
+            `http://localhost:3000/equipos/jugadores/${data.id_equipo}`,
+            { credentials: "include" } // 👈 ENVÍA COOKIE
+          );
+          const jugadores = await resJugadores.json();
+          setJugadoresDelEquipo(jugadores);
         }
-        fetchJugadores();
-    }, []);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchMiEquipo();
+  }, []);
 
-    // Traer equipo del capitán y jugadores del equipo
-    useEffect(() => {
-        async function fetchMiEquipo() {
-            try {
-                const res = await fetch(`http://localhost:3000/equipos/mi-equipo/${idCapitan}`);
-                const data = await res.json();
-                setMiEquipo(data);
+  const handleCrearEquipo = async (e) => {
+    e.preventDefault();
+    const payload = { nombre_equipo: nombreEquipo, id_capitan: idCapitan };
 
-                if (data && data.id_equipo) {
-                    const resJugadores = await fetch(`http://localhost:3000/equipos/jugadores/${data.id_equipo}`);
-                    const jugadores = await resJugadores.json();
-                    console.log('Jugadores del equipo:', jugadores);
-                    setJugadoresDelEquipo(jugadores);
-                }
-            } catch (err) {
-                console.error(err);
-            }
-        }
-        fetchMiEquipo();
-    }, []);
+    try {
+      const res = await fetch("http://localhost:3000/equipos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        credentials: "include", // 👈 ENVÍA COOKIE
+      });
 
-    const handleCrearEquipo = async (e) => {
-        e.preventDefault();
-        const payload = { nombre_equipo: nombreEquipo, id_capitan: idCapitan };
+      if (!res.ok) throw new Error("Error en la petición");
 
-        try {
-            const res = await fetch("http://localhost:3000/equipos", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
+      const data = await res.json();
+      setMiEquipo(data);
+      setMensaje(`Equipo creado: ${data.nombre_equipo}`);
+      setNombreEquipo("");
+    } catch (err) {
+      console.error(err);
+      setMensaje(err.message);
+    }
+  };
 
-            if (!res.ok) throw new Error("Error en la petición");
+  const toggleJugador = (id) => {
+    const jugadorId = parseInt(id);
+    setJugadoresSeleccionados((prev) =>
+      prev.includes(jugadorId)
+        ? prev.filter((selectedId) => selectedId !== jugadorId)
+        : [...prev, jugadorId]
+    );
+  };
 
-            const data = await res.json();
-            setMiEquipo(data);
-            setMensaje(`Equipo creado: ${data.nombre_equipo}`);
-            setNombreEquipo("");
-        } catch (err) {
-            console.error(err);
-            setMensaje(err.message);
-        }
+  const handleAgregarJugadores = async () => {
+    if (!miEquipo || jugadoresSeleccionados.length === 0) return;
+
+    const payload = {
+      id_equipo: miEquipo.id_equipo,
+      jugadoresIds: jugadoresSeleccionados,
     };
 
-    const toggleJugador = (id) => {
-        // Asegurarnos de que el id sea siempre número
-        const jugadorId = parseInt(id);
-        console.log('Toggling jugador:', jugadorId, 'Current selected:', jugadoresSeleccionados);
-        
-        setJugadoresSeleccionados((prev) =>
-            prev.includes(jugadorId)
-                ? prev.filter((selectedId) => selectedId !== jugadorId)
-                : [...prev, jugadorId]
-        );
-    };
+    try {
+      const res = await fetch("http://localhost:3000/equipos/agregar-jugadores", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        credentials: "include", // 👈 ENVÍA COOKIE
+      });
 
-    const handleAgregarJugadores = async () => {
-        if (!miEquipo || jugadoresSeleccionados.length === 0) return;
+      if (!res.ok) throw new Error("Error al agregar jugadores");
 
-        const payload = {
-            id_equipo: miEquipo.id_equipo,
-            jugadoresIds: jugadoresSeleccionados,
-        };
+      const data = await res.json();
+      setJugadoresSeleccionados([]);
+      setShowModal(false);
 
-        try {
-            const res = await fetch("http://localhost:3000/equipos/agregar-jugadores", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
+      const resJugadores = await fetch(
+        `http://localhost:3000/equipos/jugadores/${miEquipo.id_equipo}`,
+        { credentials: "include" }
+      );
+      const jugadoresActualizados = await resJugadores.json();
+      setJugadoresDelEquipo(jugadoresActualizados);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-            if (!res.ok) throw new Error("Error al agregar jugadores");
+  const handleEliminarJugador = async (idJugador) => {
+    if (!miEquipo) return;
 
-            const data = await res.json();
-            setJugadoresSeleccionados([]);
-            setShowModal(false);
-            
-            // Refrescar la lista de jugadores del equipo
-            const resJugadores = await fetch(`http://localhost:3000/equipos/jugadores/${miEquipo.id_equipo}`);
-            const jugadoresActualizados = await resJugadores.json();
-            setJugadoresDelEquipo(jugadoresActualizados);
-        } catch (err) {
-            console.error(err);
-        }
-    };
+    try {
+      const res = await fetch(
+        `http://localhost:3000/equipos/eliminar-jugador/${miEquipo.id_equipo}/${idJugador}`,
+        { method: "DELETE", credentials: "include" } // 👈 ENVÍA COOKIE
+      );
 
-    const handleEliminarJugador = async (idJugador) => {
-        if (!miEquipo) return;
+      if (!res.ok) throw new Error("Error al eliminar jugador");
 
-        try {
-            const res = await fetch(
-                `http://localhost:3000/equipos/eliminar-jugador/${miEquipo.id_equipo}/${idJugador}`,
-                { method: "DELETE" }
-            );
-
-            if (!res.ok) throw new Error("Error al eliminar jugador");
-
-            setJugadoresDelEquipo((prev) =>
-                prev.filter((jugador) => jugador.id_usuario !== idJugador)
-            );
-        } catch (err) {
-            console.error(err);
-        }
-    };
+      setJugadoresDelEquipo((prev) =>
+        prev.filter((jugador) => jugador.id_usuario !== idJugador)
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
     if (miEquipo) {
         return (
