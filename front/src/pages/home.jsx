@@ -1,5 +1,6 @@
 import { useState } from "react";
 import '../styles/home.css'; 
+import { useNavigate } from "react-router-dom"; // <-- AÑADIR ESTA LÍNEA
 
 function Home({ isAdmin }) {
   const [torneo, setTorneo] = useState(null);
@@ -8,6 +9,7 @@ function Home({ isAdmin }) {
   const [formData, setFormData] = useState({
     nombre: "", fechaInicio: "", fechaFin: "", formato: "", tipo: "", inscripcion: "", costo: "",
   });
+<<<<<<< Updated upstream
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -22,11 +24,116 @@ function Home({ isAdmin }) {
     setMostrarForm(true);
   };
   const handleDelete = () => setTorneo(null);
+=======
+  const [error, setError] = useState("");
+  const navigate = useNavigate(); // <-- AÑADIR ESTA LÍNEA
+
+  // Cargar torneo al iniciar
+  useEffect(() => {
+    cargarTorneo();
+  }, []);
+
+  const cargarTorneo = async () => {
+    // ... (sin cambios aquí)
+    try {
+      const response = await fetch(API_URL, {
+        method: 'GET',
+        credentials: 'include', 
+      });
+      if (!response.ok) throw new Error('No autorizado o error al cargar torneos');
+      const data = await response.json();
+      if (data.length > 0) {
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        const torneoActivo = data.find(t => {
+          const inicio = new Date(t.fecha_inicio);
+          inicio.setHours(0, 0, 0, 0);
+          const fin = new Date(t.fecha_fin);
+          fin.setHours(23, 59, 59, 999);
+          return hoy >= inicio && hoy <= fin;
+        });
+        setTorneo(torneoActivo || null);
+      } else {
+        setTorneo(null);
+      }
+    } catch (error) {
+      console.error('Error al cargar torneo:', error);
+      setError(error.message);
+    }
+  };
+
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  
+  const handleSubmit = async (e) => {
+    // ... (sin cambios aquí)
+    e.preventDefault();
+    try {
+      const options = {
+        method: editando ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          nombre_torneo: formData.nombre,
+          fecha_inicio: formData.fechaInicio,
+          fecha_fin: formData.fechaFin,
+          tipo_torneo: formData.tipo,
+          formato: formData.formato
+        }),
+      };
+      const url = editando ? `${API_URL}/${torneo.id_torneo}` : API_URL;
+      const response = await fetch(url, options);
+      if (!response.ok) throw new Error('Error al guardar torneo');
+      const torneoGuardado = await response.json();
+      setTorneo(torneoGuardado);
+      setMostrarForm(false);
+      setEditando(false);
+      setFormData({ nombre: "", fechaInicio: "", fechaFin: "", formato: "", tipo: "" });
+      cargarTorneo();
+    } catch (error) {
+      console.error('Error al guardar torneo:', error);
+      setError(error.message);
+    }
+  };
+
+  const handleEdit = (e) => {
+    // --- INICIO CAMBIO ---
+    // Detenemos la propagación para que no navegue a la página de fixture
+    e.stopPropagation(); 
+    // --- FIN CAMBIO ---
+    setFormData({
+      nombre: torneo.nombre_torneo || "",
+      fechaInicio: torneo.fecha_inicio || "",
+      fechaFin: torneo.fecha_fin || "",
+      formato: torneo.formato || "",
+      tipo: torneo.tipo_torneo || "",
+    });
+    setEditando(true);
+    setMostrarForm(true);
+  };
+
+  const handleDelete = async (e) => {
+    // --- INICIO CAMBIO ---
+    e.stopPropagation(); // Detenemos la propagación
+    // --- FIN CAMBIO ---
+    try {
+      const response = await fetch(`${API_URL}/${torneo.id_torneo}`, {
+        method: 'DELETE',
+        credentials: 'include', 
+      });
+      if (!response.ok) throw new Error('Error al eliminar torneo');
+      setTorneo(null);
+    } catch (error) {
+      console.error('Error al eliminar torneo:', error);
+      setError(error.message);
+    }
+  };
+>>>>>>> Stashed changes
   
   return (
     <>
       {/* ===== NUEVO HEADER ===== */}
       <header className="app-header">
+        {/* ... (sin cambios en el header) ... */}
         <div className="header-logo">
           <a href="/">TORNEO</a>
         </div>
@@ -45,9 +152,22 @@ function Home({ isAdmin }) {
 
           {/* --- VISTA DEL TORNEO ACTIVO --- */}
           {torneo && !mostrarForm && (
+<<<<<<< Updated upstream
             <>
             <div className="torneo-card">
               <h2 className="torneo-name">{torneo.nombre}</h2>
+=======
+            // --- INICIO CAMBIO ---
+            // Hacemos la tarjeta clickeable y le damos estilo
+            <div 
+              className="torneo-card" 
+              onClick={() => navigate(`/torneo/${torneo.id_torneo}/fixture`)}
+              style={{ cursor: 'pointer' }}
+              title="Click para ver el fixture"
+            >
+            {/* --- FIN CAMBIO --- */}
+              <h2 className="torneo-name">{torneo.nombre_torneo}</h2>
+>>>>>>> Stashed changes
               <div className="torneo-details">
                   <p><span className="detail-label">Inicio:</span> {torneo.fechaInicio}</p>
                   <p><span className="detail-label">Fin:</span> {torneo.fechaFin}</p>
@@ -68,7 +188,11 @@ function Home({ isAdmin }) {
 
           {/* --- VISTA CUANDO NO HAY TORNEO --- */}
           {!torneo && !mostrarForm && (
+<<<<<<< Updated upstream
             <>
+=======
+            // ... (sin cambios aquí)
+>>>>>>> Stashed changes
             <div className="torneo-card no-torneo-card">
               <p className="no-torneo-text">Lo sentimos, por el momento no tenemos ningún torneo agendado. Mientras tanto podes mirar estadísticas y torneos!</p>
               {isAdmin && (
@@ -82,6 +206,7 @@ function Home({ isAdmin }) {
 
           {/* --- FORMULARIO DE CREACIÓN/EDICIÓN --- */}
           {isAdmin && mostrarForm && (
+            // ... (sin cambios aquí)
             <form onSubmit={handleSubmit} className="form-card">
               <h2 className={`form-title ${editando ? "title-edit" : "title-create"}`}>
                 {editando ? "✏️ Editar Torneo" : "➕ Crear Nuevo Torneo"}

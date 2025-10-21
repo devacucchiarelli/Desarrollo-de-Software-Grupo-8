@@ -5,6 +5,7 @@ services:
     image: postgres:16
     container_name: futbol_db
     restart: unless-stopped
+<<<<<<< Updated upstream
     env_file:
       - .env
     ports:
@@ -12,5 +13,17 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
 
+=======
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: futbol_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./postgresql.conf:/etc/postgresql/16/main/postgresql.conf
+>>>>>>> Stashed changes
 volumes:
   db_data:
