@@ -305,9 +305,6 @@
   /* 6. MEDIA QUERIES PARA ESCRITORIO (> 768px)   */
   /* ============================================== */
   @media (min-width: 768px) {
-    body{
-      overflow-y: hidden;
-    }
 
     .main-content-wrapper {
       max-width: 800px;

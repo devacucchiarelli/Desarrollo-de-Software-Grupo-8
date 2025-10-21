@@ -14,7 +14,7 @@ async function testConnection(configName, host) {
     host: host,
     database: 'futbol_db',
     password: 'admin123',
-    port: 5432,
+    port: 5433,
     ssl: false,
     connectionTimeoutMillis: 3000
   });

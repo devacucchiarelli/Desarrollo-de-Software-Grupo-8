@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import '../styles/home.css'; 
+import { useNavigate } from "react-router-dom"; // <-- AÑADIR ESTA LÍNEA
 
 const API_URL = 'http://localhost:3000/torneo';
 
@@ -11,6 +12,7 @@ function Home({ isAdmin }) {
     nombre: "", fechaInicio: "", fechaFin: "", formato: "", tipo: "",
   });
   const [error, setError] = useState("");
+  const navigate = useNavigate(); // <-- AÑADIR ESTA LÍNEA
 
   // Cargar torneo al iniciar
   useEffect(() => {
@@ -18,30 +20,24 @@ function Home({ isAdmin }) {
   }, []);
 
   const cargarTorneo = async () => {
+    // ... (sin cambios aquí)
     try {
       const response = await fetch(API_URL, {
         method: 'GET',
-        credentials: 'include', // ✅ enviar cookies de sesión
+        credentials: 'include', 
       });
-
       if (!response.ok) throw new Error('No autorizado o error al cargar torneos');
-
       const data = await response.json();
-      
       if (data.length > 0) {
         const hoy = new Date();
         hoy.setHours(0, 0, 0, 0);
-        
-        // Buscar torneo activo (donde hoy esté entre fecha_inicio y fecha_fin)
         const torneoActivo = data.find(t => {
           const inicio = new Date(t.fecha_inicio);
           inicio.setHours(0, 0, 0, 0);
           const fin = new Date(t.fecha_fin);
           fin.setHours(23, 59, 59, 999);
-          
           return hoy >= inicio && hoy <= fin;
         });
-        
         setTorneo(torneoActivo || null);
       } else {
         setTorneo(null);
@@ -55,8 +51,8 @@ function Home({ isAdmin }) {
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   
   const handleSubmit = async (e) => {
+    // ... (sin cambios aquí)
     e.preventDefault();
-    
     try {
       const options = {
         method: editando ? 'PUT' : 'POST',
@@ -70,12 +66,9 @@ function Home({ isAdmin }) {
           formato: formData.formato
         }),
       };
-
       const url = editando ? `${API_URL}/${torneo.id_torneo}` : API_URL;
       const response = await fetch(url, options);
-
       if (!response.ok) throw new Error('Error al guardar torneo');
-
       const torneoGuardado = await response.json();
       setTorneo(torneoGuardado);
       setMostrarForm(false);
@@ -88,7 +81,11 @@ function Home({ isAdmin }) {
     }
   };
 
-  const handleEdit = () => {
+  const handleEdit = (e) => {
+    // --- INICIO CAMBIO ---
+    // Detenemos la propagación para que no navegue a la página de fixture
+    e.stopPropagation(); 
+    // --- FIN CAMBIO ---
     setFormData({
       nombre: torneo.nombre_torneo || "",
       fechaInicio: torneo.fecha_inicio || "",
@@ -100,11 +97,14 @@ function Home({ isAdmin }) {
     setMostrarForm(true);
   };
 
-  const handleDelete = async () => {
+  const handleDelete = async (e) => {
+    // --- INICIO CAMBIO ---
+    e.stopPropagation(); // Detenemos la propagación
+    // --- FIN CAMBIO ---
     try {
       const response = await fetch(`${API_URL}/${torneo.id_torneo}`, {
         method: 'DELETE',
-        credentials: 'include', // ✅ enviar cookies
+        credentials: 'include', 
       });
       if (!response.ok) throw new Error('Error al eliminar torneo');
       setTorneo(null);
@@ -117,6 +117,7 @@ function Home({ isAdmin }) {
   return (
     <>
       <header className="app-header">
+        {/* ... (sin cambios en el header) ... */}
         <div className="header-logo">
           <a href="/">TORNEO</a>
         </div>
@@ -135,7 +136,15 @@ function Home({ isAdmin }) {
           <h1 className="main-title">Bienvenido</h1>
 
           {torneo && !mostrarForm && (
-            <div className="torneo-card">
+            // --- INICIO CAMBIO ---
+            // Hacemos la tarjeta clickeable y le damos estilo
+            <div 
+              className="torneo-card" 
+              onClick={() => navigate(`/torneo/${torneo.id_torneo}/fixture`)}
+              style={{ cursor: 'pointer' }}
+              title="Click para ver el fixture"
+            >
+            {/* --- FIN CAMBIO --- */}
               <h2 className="torneo-name">{torneo.nombre_torneo}</h2>
               <div className="torneo-details">
                 <p><span className="detail-label">Inicio:</span> {torneo.fecha_inicio_formato}</p>
@@ -153,6 +162,7 @@ function Home({ isAdmin }) {
           )}
 
           {!torneo && !mostrarForm && (
+            // ... (sin cambios aquí)
             <div className="torneo-card no-torneo-card">
               <p className="no-torneo-text">
                 Lo sentimos, por el momento no tenemos ningún torneo agendado.
@@ -166,6 +176,7 @@ function Home({ isAdmin }) {
           )}
 
           {isAdmin && mostrarForm && (
+            // ... (sin cambios aquí)
             <form onSubmit={handleSubmit} className="form-card">
               <h2 className={`form-title ${editando ? "title-edit" : "title-create"}`}>
                 {editando ? "✏️ Editar Torneo" : "➕ Crear Nuevo Torneo"}

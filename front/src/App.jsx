@@ -6,6 +6,7 @@ import ListaUsuarios from './pages/ListaUsuarios.jsx'
 import Equipo from "./pages/equipo.jsx";
 import Torneos from "./pages/torneo.jsx";
 import LoginRegister from "./pages/LoginRegister.jsx"
+import Fixture from "./pages/Fixture.jsx"; // <-- AÑADIR ESTA LÍNEA
 
 import React, { useState } from 'react';
 
@@ -24,12 +25,11 @@ function App() {
         <Route path="/equipo" element={<Equipo isAdmin={isAdmin} />} />
         <Route path="/torneo" element={<Torneos isAdmin={isAdmin} />} />
         <Route path="/login" element={<LoginRegister isAdmin={isAdmin} />} />
+        {/* --- AÑADIR ESTA RUTA --- */}
+        <Route path="/torneo/:idTorneo/fixture" element={<Fixture isAdmin={isAdmin} />} />
       </Routes>
     </BrowserRouter>
   );
-
 }
-
-
 
 export default App

@@ -9,9 +9,7 @@ services:
       POSTGRES_PASSWORD: admin123
       POSTGRES_DB: futbol_db
     ports:
-      - "5432:5432"
-    env_file:
-      - .env
+      - "5433:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
