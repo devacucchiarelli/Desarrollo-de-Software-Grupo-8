@@ -23,7 +23,8 @@ export default function LoginRegister() {
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-
+      console.log("Respuesta login:", data);
+      
       setMensaje('Login exitoso, bienvenido ' + data.usuario.nombre);
 
       // Redirigir a "/" después de login exitoso

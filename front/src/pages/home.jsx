@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import '../styles/home.css'; 
 import { useNavigate } from "react-router-dom"; // <-- AÑADIR ESTA LÍNEA
+import { Link } from "react-router-dom";
 
 const API_URL = 'http://localhost:3000/torneo';
 
@@ -126,7 +127,7 @@ function Home({ isAdmin }) {
           <a href="equipo" className="btn">Equipo</a>
           <a href="#" className="btn">Estadísticas</a>
           <a href="usuarios" className="btn">Usuarios</a>
-          <a href="#" className="btn btn-login">Login</a>
+          <Link to="/login" className="btn btn-login">Login</Link>
         </nav>
       </header>
 

@@ -53,7 +53,7 @@ const UsuarioService = {
     if (!passwordValido) throw new Error('Contraseña incorrecta');
 
     const token = jwt.sign(
-      { id: usuario.id, email: usuario.email, rol: usuario.rol },
+      { id: usuario.id_usuario, email: usuario.email, rol: usuario.rol },
       JWT_SECRET,
       { expiresIn: '1d' }
     );

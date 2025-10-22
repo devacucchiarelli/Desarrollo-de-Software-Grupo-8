@@ -8,6 +8,7 @@ const router = express.Router();
 router.post('/', UsuarioController.crearUsuario);
 router.post('/login', UsuarioController.login);
 
+
 // Logout y obtener usuarios requieren autenticación
 router.post('/logout', verificarToken, UsuarioController.logout);
 router.get('/', verificarToken, UsuarioController.obtenerUsuarios);
