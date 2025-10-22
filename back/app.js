@@ -8,6 +8,8 @@ const torneoRouter = require('./src/routes/torneoRoute.js');
 const inscripcionesRouter = require('./src/routes/inscripciones.router.js');
 const usuarioRoutes = require('./src/routes/usuarioRoutes.js');
 const partidoRouter = require('./src/routes/partidoRoute.js'); // <-- AÑADIR
+const estadisticasRoutes = require('./routes/estadisticasRoutes.js');
+app.use('/api/estadisticas', estadisticasRoutes);
 
 const verificarToken = require('./src/middleware/authMiddleware.js');
 
