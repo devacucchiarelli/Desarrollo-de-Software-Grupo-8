@@ -125,7 +125,7 @@ function Home({ isAdmin }) {
         <nav className="header-nav">
           <a href="torneo" className="btn">Torneos</a>
           <a href="equipo" className="btn">Equipo</a>
-          <a href="#" className="btn">Estadísticas</a>
+          <Link to="/estadisticas" className="btn">Estadísticas</Link>
           <a href="usuarios" className="btn">Usuarios</a>
           <Link to="/login" className="btn btn-login">Login</Link>
         </nav>
