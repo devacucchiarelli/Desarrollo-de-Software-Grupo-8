@@ -81,3 +81,47 @@ CREATE TABLE partidos (
         REFERENCES torneos(id_torneo)
         ON DELETE CASCADE
 );
+
+-- Estadísticas por partido (resumen general del partido)
+CREATE TABLE estadisticas_partido (
+    id_estadistica_partido SERIAL PRIMARY KEY,
+    id_partido INT NOT NULL,
+    id_ganador INT,
+    id_goleador INT,
+    goles_local INT DEFAULT 0,
+    goles_visitante INT DEFAULT 0,
+    amarillas_local INT DEFAULT 0,
+    amarillas_visitante INT DEFAULT 0,
+    rojas_local INT DEFAULT 0,
+    rojas_visitante INT DEFAULT 0,
+    CONSTRAINT fk_partido_estadistica
+        FOREIGN KEY (id_partido)
+        REFERENCES partidos(id_partido)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_ganador_equipo
+        FOREIGN KEY (id_ganador)
+        REFERENCES equipos(id_equipo)
+        ON DELETE SET NULL,
+    CONSTRAINT fk_goleador_jugador
+        FOREIGN KEY (id_goleador)
+        REFERENCES usuarios(id_usuario)
+        ON DELETE SET NULL
+);
+
+-- Estadísticas por jugador en cada partido
+CREATE TABLE estadisticas_jugador_partido (
+    id_estadistica_jugador_partido SERIAL PRIMARY KEY,
+    id_partido INT NOT NULL,
+    id_jugador INT NOT NULL,
+    goles INT DEFAULT 0,
+    amarillas INT DEFAULT 0,
+    rojas INT DEFAULT 0,
+    CONSTRAINT fk_partido_jugador
+        FOREIGN KEY (id_partido)
+        REFERENCES partidos(id_partido)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_jugador_usuario
+        FOREIGN KEY (id_jugador)
+        REFERENCES usuarios(id_usuario)
+        ON DELETE CASCADE
+);
