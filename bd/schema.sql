@@ -66,3 +66,18 @@ CREATE TABLE equipos_torneo (
         REFERENCES equipos(id_equipo)
         ON DELETE CASCADE
 );
+
+-- Partidos (Fixture)
+CREATE TABLE partidos (
+    id_partido SERIAL PRIMARY KEY,
+    id_torneo INT NOT NULL,
+    fecha_partido TIMESTAMPTZ DEFAULT NOW(),
+    equipo_local VARCHAR(100) DEFAULT 'Equipo A',
+    equipo_visitante VARCHAR(100) DEFAULT 'Equipo B',
+    resultado_local INT DEFAULT 0,
+    resultado_visitante INT DEFAULT 0,
+    CONSTRAINT fk_torneo
+        FOREIGN KEY (id_torneo)
+        REFERENCES torneos(id_torneo)
+        ON DELETE CASCADE
+);

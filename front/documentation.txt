@@ -1,6 +1,6 @@
 Si es la primera vez que usas el proyecto:
 
-npm instal
+npm install
 
 ------------------
 

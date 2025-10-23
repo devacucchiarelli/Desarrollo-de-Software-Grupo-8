@@ -1,96 +1,160 @@
-import { useState } from "react";
-import '../styles/home.css'; 
-import InscripcionEquipo from "../components/InscripcionEquipo";
+import { useState, useEffect } from "react";
+import '../styles/home.css';
+import { useNavigate } from "react-router-dom";
 
-
-
+const API_URL = 'http://localhost:3000/torneo';
 
 function Home({ isAdmin }) {
-  const [torneo, setTorneo] = useState(null);
+  const [torneo, setTorneo] = useState(null); // El torneo activo cargado
   const [mostrarForm, setMostrarForm] = useState(false);
   const [editando, setEditando] = useState(false);
-  const [formData, setFormData] = useState({
-    nombre: "", fechaInicio: "", fechaFin: "", formato: "", tipo: "", inscripcion: "", costo: "",
-  });
-  const [mostrarInscripcion, setMostrarInscripcion] = useState(false);
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setTorneo(formData);
-    setMostrarForm(false);
-    setEditando(false);
-    setFormData({ nombre: "", fechaInicio: "", fechaFin: "", formato: "", tipo: "", inscripcion: "", costo: "" });
+  const [formatoOriginalAlEditar, setFormatoOriginalAlEditar] = useState('');
+  // Estado inicial ajustado, cantidadEquipos vacío por defecto
+  const initialFormData = {
+    nombre: "", fechaInicio: "", fechaFin: "", formato: "", tipo: "", cantidadEquipos: "",
   };
-  const handleEdit = () => {
-    setFormData(torneo);
+  const [formData, setFormData] = useState(initialFormData);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    cargarTorneo();
+  }, []);
+
+  const cargarTorneo = async () => {
+    try {
+        const response = await fetch(API_URL, { method: 'GET', credentials: 'include' });
+        if (!response.ok) throw new Error('No autorizado o error al cargar torneos');
+        const data = await response.json();
+        if (data.length > 0) {
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            const torneoActivo = data.find(t => {
+                const inicio = new Date(t.fecha_inicio); inicio.setHours(0, 0, 0, 0);
+                const fin = new Date(t.fecha_fin); fin.setHours(23, 59, 59, 999);
+                return hoy >= inicio && hoy <= fin;
+            });
+            setTorneo(torneoActivo || null);
+        } else {
+            setTorneo(null);
+        }
+    } catch (error) {
+        console.error('Error al cargar torneo:', error);
+        setError(error.message);
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => {
+        const newState = { ...prev, [name]: value };
+        // Si cambia el formato, ajusta cantidadEquipos
+        if (name === 'formato') {
+            // Si cambia a eliminatoria, usa 16 como default si no hay valor
+            // Si cambia a liga, usa el valor previo si existe, si no vacío
+            // Si cambia a '' (seleccionar), vacía cantidadEquipos
+            newState.cantidadEquipos = value === 'eliminatoria' ? (prev.cantidadEquipos || '16') : (value === 'liga' ? prev.cantidadEquipos || '' : '');
+        }
+        return newState;
+    });
+  };
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    // --- VALIDACIONES ---
+    let cantidadEquiposNum = parseInt(formData.cantidadEquipos, 10);
+
+    if (formData.formato === 'eliminatoria' && (!cantidadEquiposNum || ![8, 16, 32].includes(cantidadEquiposNum))) {
+        setError("Para Eliminatoria, equipos debe ser 8, 16 o 32."); return;
+    }
+    if (formData.formato === 'liga' && (!cantidadEquiposNum || cantidadEquiposNum < 4 || cantidadEquiposNum > 30)) {
+        setError("Para Liga, equipos debe ser entre 4 y 30."); return;
+    }
+     if (!formData.formato) { setError("Debes seleccionar un formato."); return; }
+     // --- FIN VALIDACIONES ---
+
+    try {
+      const dataToSend = {
+          nombre_torneo: formData.nombre,
+          fecha_inicio: formData.fechaInicio,
+          fecha_fin: formData.fechaFin,
+          tipo_torneo: formData.tipo,
+          formato: formData.formato,
+          // Añadir cantidad_equipos si el formato lo requiere y tiene valor
+          ...( (formData.formato === 'eliminatoria' || formData.formato === 'liga') && formData.cantidadEquipos && { cantidad_equipos: cantidadEquiposNum })
+      };
+
+      const options = { method: editando ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(dataToSend) };
+      const url = editando ? `${API_URL}/${torneo.id_torneo}` : API_URL;
+      const response = await fetch(url, options);
+      if (!response.ok) { const errorData = await response.json().catch(() => ({ error: 'Error desconocido al guardar torneo' })); throw new Error(errorData.error || 'Error al guardar torneo'); }
+
+      setMostrarForm(false); setEditando(false); setFormatoOriginalAlEditar(''); setFormData(initialFormData); cargarTorneo();
+    } catch (error) { console.error('Error al guardar torneo:', error); setError(error.message); }
+  };
+
+  const handleEdit = (e) => {
+    e.stopPropagation();
+    setFormatoOriginalAlEditar(torneo.formato || '');
+    setFormData({
+      nombre: torneo.nombre_torneo || "",
+      fechaInicio: torneo.fecha_inicio ? torneo.fecha_inicio.split('T')[0] : "",
+      fechaFin: torneo.fecha_fin ? torneo.fecha_fin.split('T')[0] : "",
+      formato: torneo.formato || "",
+      tipo: torneo.tipo_torneo || "",
+      cantidadEquipos: torneo.cantidad_equipos?.toString() || "", // Carga la cantidad si existe
+    });
     setEditando(true);
     setMostrarForm(true);
   };
-  const handleDelete = () => setTorneo(null);
-  
+
+  const handleDelete = async (e) => {
+    e.stopPropagation(); if (window.confirm(`¿Seguro querés eliminar el torneo "${torneo.nombre_torneo}"?`)) { try { const response = await fetch(`${API_URL}/${torneo.id_torneo}`, { method: 'DELETE', credentials: 'include', }); if (!response.ok) { const errorData = await response.json().catch(() => ({ error: 'Error desconocido al eliminar torneo' })); throw new Error(errorData.error || 'Error al eliminar torneo'); } setTorneo(null); setError(""); } catch (error) { console.error('Error al eliminar torneo:', error); setError(error.message); } }
+  };
+
+  // --- Navegación Condicional ---
+  const handleCardClick = () => {
+      if (!torneo) return;
+      if (torneo.formato === 'eliminatoria') {
+          navigate(`/torneo/${torneo.id_torneo}/fixture`);
+      } else if (torneo.formato === 'liga') {
+          navigate(`/torneo/${torneo.id_torneo}/tabla`); // Nueva ruta para la tabla
+      }
+  };
+  // --- FIN Navegación Condicional ---
+
   return (
     <>
-      {/* ===== NUEVO HEADER ===== */}
       <header className="app-header">
-        <div className="header-logo">
-          <a href="/">TORNEO</a>
-        </div>
-        <nav className="header-nav">
-          <a href="#" className="btn">Torneos</a>
-          <a href="#" className="btn">Estadísticas</a>
-          <a href="#" className="btn btn-login">Login</a>
-        </nav>
+         <div className="header-logo"><a href="/">TORNEO</a></div><nav className="header-nav"><a href="/torneo" className="btn">Torneos</a><a href="/equipo" className="btn">Equipo</a><a href="#" className="btn">Estadísticas</a><a href="/usuarios" className="btn">Usuarios</a><a href="/login" className="btn btn-login">Login</a></nav>
       </header>
 
       <div className="app-container">
-        <div className="main-content-wrapper">
-          <h1 className="main-title">
-            Bienvenido
-          </h1>
+        {error && <p className="error-message">{error}</p>}
 
-          {/* --- VISTA DEL TORNEO ACTIVO --- */}
+        <div className="main-content-wrapper">
+          <h1 className="main-title">Bienvenido</h1>
+
           {torneo && !mostrarForm && (
-            <>
-            <div className="torneo-card">
-              <h2 className="torneo-name">{torneo.nombre}</h2>
-              <div className="torneo-details">
-                  <p><span className="detail-label">Inicio:</span> {torneo.fechaInicio}</p>
-                  <p><span className="detail-label">Fin:</span> {torneo.fechaFin}</p>
-                  <p><span className="detail-label">Tipo:</span> {torneo.tipo}</p>
-                  <p><span className="detail-label">Formato:</span> {torneo.formato}</p>
-                  <p><span className="detail-label">Limite de inscripción:</span> {torneo.inscripcion}</p>
-                  <p><span className="detail-label">Inscripcion por equipo:</span> {torneo.costo}</p>
+              <div className="torneo-card" onClick={handleCardClick} style={{ cursor: 'pointer' }} title={`Click para ver ${torneo.formato === 'liga' ? 'tabla' : 'fixture'}`}>
+                 <h2 className="torneo-name">{torneo.nombre_torneo}</h2>
+                 <div className="torneo-details">
+                     <p><span className="detail-label">Inicio:</span> {torneo.fecha_inicio_formato || torneo.fecha_inicio}</p>
+                     <p><span className="detail-label">Fin:</span> {torneo.fecha_fin_formato || torneo.fecha_fin}</p>
+                     <p><span className="detail-label">Tipo:</span> {torneo.tipo_torneo}</p>
+                     <p><span className="detail-label">Formato:</span> {torneo.formato}</p>
+                     {/* Mostramos cantidad si existe (viene de la DB ahora) */}
+                     {torneo.cantidad_equipos && <p><span className="detail-label">Equipos:</span> {torneo.cantidad_equipos}</p>}
+                 </div>
+                 {isAdmin && ( <div className="button-group"> <button onClick={handleEdit} className="btn btn-edit">✏️ Editar</button> <button onClick={handleDelete} className="btn btn-delete">🗑️ Eliminar</button> </div> )}
               </div>
-              {isAdmin && (
-                <div className="button-group">
-                  <button onClick={handleEdit} className="btn btn-edit">✏️ Editar</button>
-                  <button onClick={handleDelete} className="btn btn-delete">🗑️ Eliminar</button>
-                </div>
-              )}
-            </div>
-            </>
           )}
 
-          {/* --- VISTA CUANDO NO HAY TORNEO --- */}
-        {!torneo && !mostrarForm && (
-  <div className="torneo-card no-torneo-card">
-    <p className="no-torneo-text">
-      Lo sentimos, por el momento no tenemos ningún torneo agendado. Mientras tanto podes mirar estadísticas y torneos!
-    </p>
-    {isAdmin && (
-      <div className="torneo-card-buttons">
-        <button onClick={() => setMostrarForm(true)} className="btn btn-create">
-          ➕ Crear Nuevo Torneo
-        </button>
-        <button className="btn" onClick={() => setMostrarInscripcion(true)}>
-          Inscripción a Torneo
-        </button>
-      </div>
-    )}
-  </div>
-)}
+          {!torneo && !mostrarForm && ( <div className="torneo-card no-torneo-card"> <p className="no-torneo-text"> Lo sentimos, por el momento no tenemos ningún torneo agendado. </p> {isAdmin && ( <button onClick={() => setMostrarForm(true)} className="btn btn-create"> ➕ Crear Nuevo Torneo </button> )} </div> )}
 
-          {/* --- FORMULARIO DE CREACIÓN/EDICIÓN --- */}
           {isAdmin && mostrarForm && (
             <form onSubmit={handleSubmit} className="form-card">
               <h2 className={`form-title ${editando ? "title-edit" : "title-create"}`}>
@@ -98,27 +162,50 @@ function Home({ isAdmin }) {
               </h2>
               <div className="form-inputs-container">
                   <input type="text" name="nombre" placeholder="Nombre del torneo" value={formData.nombre} onChange={handleChange} className="form-input-nombreTorneo" required />
-                  <input type="date" name="fechaInicio" title="Fecha de inicio" value={formData.fechaInicio} onChange={handleChange} className="form-input" required />
-                  <input type="date" name="fechaFin" title="Fecha de fin" value={formData.fechaFin} onChange={handleChange} className="form-input" required />
-                  <input type="text" name="tipo" placeholder="Ej: Fútbol 7, Fútbol 5" value={formData.tipo} onChange={handleChange} className="form-input" required />
-                  <input type="text" name="formato" placeholder="Ej: Liga, Eliminación Directa" value={formData.formato} onChange={handleChange} className="form-input" required />
-                  <input type="text" name="inscripcion" placeholder="Limite de inscripción" value={formData.inscripcion} onChange={handleChange} className="form-input" required />
-                  <input type="text" name="costo" placeholder="Costo por equipo" value={formData.costo} onChange={handleChange} className="form-input" required />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}> <label style={{ fontSize: '0.9rem', fontWeight: '500' }}>Fecha de inicio</label> <input type="date" name="fechaInicio" value={formData.fechaInicio} onChange={handleChange} className="form-input" required /> </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}> <label style={{ fontSize: '0.9rem', fontWeight: '500' }}>Fecha de fin</label> <input type="date" name="fechaFin" value={formData.fechaFin} onChange={handleChange} className="form-input" required /> </div>
+                  <select name="tipo" value={formData.tipo} onChange={handleChange} className="form-input" required> <option value="">Seleccionar tipo</option> <option value="futbol_5">Fútbol 5</option> <option value="futbol_7">Fútbol 7</option> <option value="futbol_11">Fútbol 11</option> </select>
+
+                  <select
+                      name="formato" value={formData.formato} onChange={handleChange} className="form-input" required
+                      disabled={editando && formatoOriginalAlEditar === 'eliminatoria'}
+                      title={editando && formatoOriginalAlEditar === 'eliminatoria' ? "No se puede cambiar el formato una vez creado como Eliminatoria" : "Seleccionar formato"} >
+                    <option value="">Seleccionar formato</option>
+                    <option value="liga">Liga</option>
+                    <option value="eliminatoria">Eliminatoria</option>
+                  </select>
+
+                  {/* --- Input/Select Condicional --- */}
+                  {formData.formato === 'eliminatoria' && (
+                      <select name="cantidadEquipos" value={formData.cantidadEquipos} onChange={handleChange} className="form-input" required
+                          disabled={editando && formatoOriginalAlEditar === 'eliminatoria'}
+                          title={editando && formatoOriginalAlEditar === 'eliminatoria' ? "No se puede cambiar la cantidad" : "Seleccionar cantidad"} >
+                          <option value="" disabled={formData.cantidadEquipos !== ""}>Nº equipos (Eliminatoria)</option>
+                          <option value="8">8 equipos</option> <option value="16">16 equipos</option> <option value="32">32 equipos</option>
+                      </select>
+                  )}
+                  {formData.formato === 'liga' && (
+                      <input
+                          type="number" name="cantidadEquipos" placeholder="Nº de equipos (Liga, 4-30)"
+                          value={formData.cantidadEquipos} onChange={handleChange} className="form-input" required
+                          min="4" max="30"
+                          // Permitimos editar la cantidad en liga por ahora
+                          // disabled={editando && formatoOriginalAlEditar === 'liga'}
+                          // title={editando && formatoOriginalAlEditar === 'liga' ? "No se puede cambiar la cantidad" : "Ingrese cantidad (4-30)"}
+                      />
+                  )}
+                  {/* --- FIN Input/Select Condicional --- */}
+
               </div>
               <div className="button-group-footer">
-                  <button type="submit" className={`btn form-submit-btn ${editando ? "btn-edit-submit" : "btn-create-submit"}`}>
-                    {editando ? "Guardar Cambios" : "Crear Torneo"}
-                  </button>
-                  <button type="button" onClick={() => { setMostrarForm(false); setEditando(false); }} className="btn btn-cancel">
-                      Cancelar
-                  </button>
+                  <button type="submit" className={`btn form-submit-btn ${editando ? "btn-edit-submit" : "btn-create-submit"}`}> {editando ? "Guardar Cambios" : "Crear Torneo"} </button>
+                  <button type="button" onClick={() => { setMostrarForm(false); setEditando(false); setFormatoOriginalAlEditar(''); setFormData(initialFormData); setError(""); }} className="btn btn-cancel"> Cancelar </button>
               </div>
             </form>
           )}
         </div>
       </div>
     </>
-    
   );
 }
 

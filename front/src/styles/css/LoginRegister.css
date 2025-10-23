@@ -1,0 +1,68 @@
+/* Contenedor principal */
+.login-container {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 30px 20px;
+  text-align: center;
+  background-color: #f8f8f8;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Título */
+.login-container h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Inputs y select */
+.login-container input,
+.login-container select {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.login-container input:focus,
+.login-container select:focus {
+  border-color: #007bff;
+}
+
+/* Botones */
+.login-container button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.login-container button:hover {
+  background-color: #0056b3;
+}
+
+/* Enlace para alternar login/registro */
+.login-container p.toggle {
+  margin-top: 15px;
+  cursor: pointer;
+  color: #007bff;
+  text-decoration: underline;
+}
+
+/* Mensaje */
+.login-container p.mensaje {
+  margin-top: 10px;
+  color: #ff0000;
+  font-weight: bold;
+}
