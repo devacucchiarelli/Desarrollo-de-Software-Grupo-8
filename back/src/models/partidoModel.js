@@ -48,9 +48,23 @@ async function deletePartido(id_partido) {
   return result.rows[0];
 }
 
+// Insertar o actualizar estadísticas de un jugador en un partido
+async function upsertEstadisticaJugadorPartido(id_partido, id_jugador, goles = 0, amarillas = 0, rojas = 0) {
+  const result = await pool.query(`
+    INSERT INTO estadistica_jugador_partido(id_partido, id_jugador, goles, amarillas, rojas)
+    VALUES ($1, $2, $3, $4, $5)
+    ON CONFLICT (id_partido, id_jugador)
+    DO UPDATE SET goles = EXCLUDED.goles, amarillas = EXCLUDED.amarillas, rojas = EXCLUDED.rojas
+    RETURNING *;
+  `, [id_partido, id_jugador, goles, amarillas, rojas]);
+
+  return result.rows[0];
+}
+
 module.exports = {
   crearPartido,
   getPartidosPorTorneo,
   updatePartido,
-  deletePartido
+  deletePartido,
+  upsertEstadisticaJugadorPartido,  //Nueva
 };

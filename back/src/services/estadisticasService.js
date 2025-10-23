@@ -25,18 +25,23 @@ const EstadisticasService = {
 
   // Registrar estadísticas individuales de jugadores
   async registrarEstadisticasJugadores(id_partido, jugadoresStats) {
-    const results = [];
-    for (const j of jugadoresStats) {
-      const query = `
-        INSERT INTO estadisticas_jugador_partido (id_partido, id_jugador, goles, amarillas, rojas)
-        VALUES ($1, $2, $3, $4, $5)
-        RETURNING *;
-      `;
-      const values = [id_partido, j.id_jugador, j.goles, j.amarillas, j.rojas];
-      const res = await pool.query(query, values);
-      results.push(res.rows[0]);
-    }
-    return results;
+  const results = [];
+  for (const j of jugadoresStats) {
+    const query = `
+      INSERT INTO estadisticas_jugador_partido (id_partido, id_jugador, goles, amarillas, rojas)
+      VALUES ($1, $2, $3, $4, $5)
+      ON CONFLICT (id_partido, id_jugador)
+      DO UPDATE SET 
+        goles = EXCLUDED.goles,
+        amarillas = EXCLUDED.amarillas,
+        rojas = EXCLUDED.rojas
+      RETURNING *;
+    `;
+    const values = [id_partido, j.id_jugador, j.goles, j.amarillas, j.rojas];
+    const res = await pool.query(query, values);
+    results.push(res.rows[0]);
+  }
+  return results;
   },
 
   // Obtener estadísticas completas de un partido

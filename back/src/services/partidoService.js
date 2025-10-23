@@ -81,12 +81,44 @@ async function getPartidosPorTorneoService(id_torneo) {
   return await partidoModel.getPartidosPorTorneo(id_torneo);
 }
 async function updatePartidoService(id_partido, data) {
-  const { fecha_partido, equipo_local, equipo_visitante, resultado_local, resultado_visitante } = data;
-  return await partidoModel.updatePartido(
+  const {
+    fecha_partido, equipo_local, equipo_visitante,
+    resultado_local, resultado_visitante,
+    goleadores_local = [], goleadores_visitante = [],
+    amarillas_local = [], amarillas_visitante = [],
+    rojas_local = [], rojas_visitante = []
+  } = data;
+
+  // Actualizar tabla partidos
+  await partidoModel.updatePartido(
     id_partido, fecha_partido, equipo_local, equipo_visitante,
     resultado_local, resultado_visitante
   );
+
+  // Actualizar estadísticas por jugador
+  const todasEstadisticas = [
+    ...goleadores_local.map(g => ({ ...g, goles: g.goles, amarillas: 0, rojas: 0 })),
+    ...goleadores_visitante.map(g => ({ ...g, goles: g.goles, amarillas: 0, rojas: 0 })),
+    ...amarillas_local.map(a => ({ id_jugador: a.id_jugador, goles: 0, amarillas: a.cantidad, rojas: 0 })),
+    ...amarillas_visitante.map(a => ({ id_jugador: a.id_jugador, goles: 0, amarillas: a.cantidad, rojas: 0 })),
+    ...rojas_local.map(r => ({ id_jugador: r.id_jugador, goles: 0, amarillas: 0, rojas: r.cantidad })),
+    ...rojas_visitante.map(r => ({ id_jugador: r.id_jugador, goles: 0, amarillas: 0, rojas: r.cantidad }))
+  ];
+
+  // Insertar/actualizar en la DB
+  for (const stat of todasEstadisticas) {
+    await partidoModel.upsertEstadisticaJugadorPartido(
+      id_partido,
+      stat.id_jugador,
+      stat.goles,
+      stat.amarillas,
+      stat.rojas
+    );
+  }
+
+  return { message: 'Partido y estadísticas actualizadas' };
 }
+
 async function deletePartidoService(id_partido) {
   return await partidoModel.deletePartido(id_partido);
 }
