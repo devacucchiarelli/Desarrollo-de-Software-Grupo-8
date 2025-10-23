@@ -70,6 +70,52 @@ async function getUsuarioPorId(id) {
   return result.rows[0]; // devuelve un solo usuario
 }
 
+async function findEquiposByTorneo(id_torneo) {
+  const result = await pool.query(
+      `SELECT e.id_equipo, e.nombre_equipo, e.id_capitan
+       FROM equipos e
+       JOIN equipos_torneo et ON e.id_equipo = et.id_equipo
+       WHERE et.id_torneo = $1`,
+      [id_torneo]
+  );
+  return result.rows;
+}
+
+// Crear equipos por defecto para un torneo
+async function crearEquiposPorDefecto(id_torneo, cantidad_equipos) {
+  const equipos = [];
+  
+  for (let i = 1; i <= cantidad_equipos; i++) {
+    const nombreEquipo = `Equipo${String.fromCharCode(64 + i)}`; // EquipoA, EquipoB, etc.
+    
+    // Crear el equipo
+    const equipoResult = await pool.query(
+      'INSERT INTO equipos(nombre_equipo, id_capitan) VALUES($1, $2) RETURNING *',
+      [nombreEquipo, null] // Sin capitán por defecto
+    );
+    
+    const equipo = equipoResult.rows[0];
+    
+    // Inscribir el equipo en el torneo
+    await pool.query(
+      'INSERT INTO equipos_torneo(id_equipo, id_torneo) VALUES($1, $2)',
+      [equipo.id_equipo, id_torneo]
+    );
+    
+    equipos.push(equipo);
+  }
+  
+  return equipos;
+}
+
+// Actualizar nombre de equipo
+async function actualizarNombreEquipo(id_equipo, nuevo_nombre) {
+  const result = await pool.query(
+    'UPDATE equipos SET nombre_equipo = $1 WHERE id_equipo = $2 RETURNING *',
+    [nuevo_nombre, id_equipo]
+  );
+  return result.rows[0];
+}
 
 module.exports = { crearEquipo, 
   findEquipoByCapitan, 
@@ -77,5 +123,8 @@ module.exports = { crearEquipo,
   agregarJugadoresAEquipo, 
   getJugadoresEquipo, 
   eliminarJugador,
-  getUsuarioPorId
+  getUsuarioPorId,
+  findEquiposByTorneo,
+  crearEquiposPorDefecto,
+  actualizarNombreEquipo
 };

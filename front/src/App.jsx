@@ -7,6 +7,7 @@ import Equipo from "./pages/equipo.jsx";
 import Torneos from "./pages/torneo.jsx";
 import LoginRegister from "./pages/LoginRegister.jsx"
 import Fixture from "./pages/Fixture.jsx"; // <-- AÑADIR ESTA LÍNEA
+import TablaPosiciones from "./pages/TablaPosiciones.jsx";
 
 import React, { useState } from 'react';
 
@@ -27,6 +28,8 @@ function App() {
         <Route path="/login" element={<LoginRegister isAdmin={isAdmin} />} />
         {/* --- AÑADIR ESTA RUTA --- */}
         <Route path="/torneo/:idTorneo/fixture" element={<Fixture isAdmin={isAdmin} />} />
+        <Route path="/torneo/:idTorneo/fixture" element={<Fixture isAdmin={isAdmin} />} />
+        <Route path="/torneo/:idTorneo/tabla" element={<TablaPosiciones isAdmin={isAdmin} />} /> {/* <-- Ruta correcta */}
       </Routes>
     </BrowserRouter>
   );

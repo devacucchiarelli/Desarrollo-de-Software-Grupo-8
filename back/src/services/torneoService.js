@@ -1,33 +1,60 @@
 const torneoModel = require('../models/torneoModel');
-const partidoService = require('./partidoService'); // Lo mantenemos para crear
+const partidoService = require('./partidoService'); // Mantenemos para 'eliminatoria'
 
-// --- crearTorneoService (Sin cambios respecto a la versión anterior) ---
-// Sigue guardando cantidad_equipos en la DB si es eliminatoria
-// y llamando a generarPartidosParaTorneo
+// --- crearTorneoService (ACTUALIZADO CON VALIDACIÓN LIGA) ---
 async function crearTorneoService(data) {
   const { nombre_torneo, fecha_inicio, fecha_fin, tipo_torneo, formato, cantidad_equipos } = data;
-  if (!nombre_torneo || !fecha_inicio || !fecha_fin || !tipo_torneo || !formato) { throw new Error('Todos los campos son obligatorios'); }
-  const tiposValidos = ['futbol_5', 'futbol_7', 'futbol_11']; const formatosValidos = ['liga', 'eliminatoria'];
+
+  // --- VALIDACIONES ---
+  if (!nombre_torneo || !fecha_inicio || !fecha_fin || !tipo_torneo || !formato) {
+    throw new Error('Todos los campos son obligatorios');
+  }
+  const tiposValidos = ['futbol_5', 'futbol_7', 'futbol_11'];
+  const formatosValidos = ['liga', 'eliminatoria'];
   if (!tiposValidos.includes(tipo_torneo)) { throw new Error('Tipo de torneo inválido.'); }
   if (!formatosValidos.includes(formato)) { throw new Error('Formato inválido.'); }
   const inicio = new Date(fecha_inicio); const fin = new Date(fecha_fin);
   if (fin <= inicio) { throw new Error('La fecha de fin debe ser posterior a la fecha de inicio'); }
-  let equiposParaGuardar = null;
+
+  let equiposParaGuardar = null; // Valor por defecto
+
   if (formato === 'eliminatoria') {
-    if (!cantidad_equipos || ![8, 16, 32].includes(cantidad_equipos)) { throw new Error('Para formato Eliminatoria, la cantidad de equipos debe ser 8, 16 o 32.'); }
+    if (!cantidad_equipos || ![8, 16, 32].includes(cantidad_equipos)) {
+      throw new Error('Para formato Eliminatoria, la cantidad de equipos debe ser 8, 16 o 32.');
+    }
     equiposParaGuardar = cantidad_equipos;
+  } else if (formato === 'liga') {
+    // --- VALIDACIÓN CANTIDAD PARA LIGA ---
+    if (!cantidad_equipos || cantidad_equipos < 4 || cantidad_equipos > 30) {
+        throw new Error('Para formato Liga, la cantidad de equipos debe ser entre 4 y 30.');
+    }
+    equiposParaGuardar = cantidad_equipos; // Guardamos también para liga
+    // --- FIN VALIDACIÓN LIGA ---
   }
-  const nuevoTorneo = await torneoModel.crearTorneo( nombre_torneo, fecha_inicio, fecha_fin, tipo_torneo, formato, equiposParaGuardar );
+  // --- FIN VALIDACIONES ---
+
+  // Llamamos a crearTorneo en el modelo, pasando la cantidad (puede ser null si no aplica)
+  const nuevoTorneo = await torneoModel.crearTorneo(
+    nombre_torneo, fecha_inicio, fecha_fin, tipo_torneo, formato, equiposParaGuardar
+  );
+
+  // Generar partidos SÓLO si es Eliminatoria
   if (nuevoTorneo && nuevoTorneo.id_torneo && nuevoTorneo.formato === 'eliminatoria' && equiposParaGuardar) {
-    try { await partidoService.generarPartidosParaTorneo(nuevoTorneo.id_torneo, equiposParaGuardar); }
-    catch (genError) { console.error("Error al generar partidos:", genError.message); /* Considerar manejo de error */ }
+    try {
+      await partidoService.generarPartidosParaTorneo(nuevoTorneo.id_torneo, equiposParaGuardar);
+      console.log(`Fixture de eliminatoria generado para torneo ${nuevoTorneo.id_torneo}`);
+    } catch (genError) { console.error("Error al generar partidos:", genError.message); /* Considerar manejo de error */ }
+  } else if (nuevoTorneo && nuevoTorneo.formato === 'liga') {
+      console.log(`Torneo ${nuevoTorneo.id_torneo} creado como Liga con ${equiposParaGuardar} equipos. No se generan partidos automáticamente.`);
+      // Podríamos llamar a una función diferente aquí si quisiéramos generar partidos de liga
   }
+
   return nuevoTorneo;
 }
 
 
 async function getTodosLosTorneosService() {
-  // Sin cambios, sigue devolviendo cantidad_equipos si existe
+  // Asegúrate que findAllTorneos en torneoModel devuelva cantidad_equipos
    return await torneoModel.findAllTorneos();
 }
 
@@ -36,67 +63,62 @@ async function eliminarTorneoService(id_torneo) {
   if (!id_torneo) { throw new Error('ID de torneo es requerido'); } const torneoEliminado = await torneoModel.deleteTorneo(id_torneo); if (!torneoEliminado) { throw new Error('Torneo no encontrado'); } return torneoEliminado;
 }
 
-// --- editarTorneoService (SIMPLIFICADO) ---
+// --- editarTorneoService (ACTUALIZADO CON VALIDACIÓN LIGA) ---
 async function editarTorneoService(id_torneo, data) {
-    const { nombre_torneo, fecha_inicio, fecha_fin, tipo_torneo, formato, cantidad_equipos } = data; // Recibimos todo del frontend
+    const { nombre_torneo, fecha_inicio, fecha_fin, tipo_torneo, formato, cantidad_equipos } = data;
     const idTorneoInt = parseInt(id_torneo, 10);
 
-    // 1. Obtener torneo actual para verificar existencia y formato original
     const torneoActual = await torneoModel.findTorneoById(idTorneoInt);
-    if (!torneoActual) {
-        throw new Error('Torneo no encontrado');
-    }
+    if (!torneoActual) { throw new Error('Torneo no encontrado'); }
 
-    // 2. Validar datos básicos (nombre, fechas, tipo)
-    if (!nombre_torneo || !fecha_inicio || !fecha_fin || !tipo_torneo ) { // Ya no validamos formato/cantidad aquí
-        throw new Error('Nombre, fechas y tipo son requeridos');
-    }
+    // Validar datos básicos
+    if (!nombre_torneo || !fecha_inicio || !fecha_fin || !tipo_torneo ) { throw new Error('Nombre, fechas y tipo son requeridos'); }
     const tiposValidos = ['futbol_5', 'futbol_7', 'futbol_11'];
     if (!tiposValidos.includes(tipo_torneo)) { throw new Error('Tipo de torneo inválido'); }
-    // Podríamos añadir validación de fechas aquí también si es necesario
+    // Podrías añadir validación de fechas aquí
 
-    // 3. Determinar qué datos actualizar en la DB
-    // SIEMPRE actualizamos nombre, fechas, tipo.
-    // SOLO actualizamos formato y cantidad_equipos si el torneo NO ERA de eliminatoria originalmente.
-    let formatoFinal = torneoActual.formato; // Por defecto, mantenemos el original
-    let cantidadFinal = torneoActual.cantidad_equipos; // Por defecto, mantenemos la original
+    let formatoFinal = torneoActual.formato;
+    let cantidadFinal = torneoActual.cantidad_equipos;
 
+    // Solo permitir cambiar formato y cantidad si el torneo NO ERA eliminatoria
     if (torneoActual.formato !== 'eliminatoria') {
-        // Si el torneo original NO ERA eliminatoria, SÍ permitimos cambiar el formato y cantidad
         const formatosValidos = ['liga', 'eliminatoria'];
         if (!formatosValidos.includes(formato)) { throw new Error('Formato inválido.'); }
-        formatoFinal = formato; // Usamos el formato enviado
+        formatoFinal = formato; // Permitir cambio de formato
 
         if (formatoFinal === 'eliminatoria') {
-             if (!cantidad_equipos || ![8, 16, 32].includes(cantidad_equipos)) {
-                 throw new Error('Si cambias a Eliminatoria, la cantidad de equipos debe ser 8, 16 o 32.');
-             }
+             if (!cantidad_equipos || ![8, 16, 32].includes(cantidad_equipos)) { throw new Error('Si cambias a Eliminatoria, la cantidad debe ser 8, 16 o 32.'); }
              cantidadFinal = cantidad_equipos;
-             // IMPORTANTE: Si se cambia A eliminatoria, ¿deberíamos generar el fixture aquí?
-             // Por simplicidad, por ahora NO lo hacemos. El fixture solo se genera al CREAR.
-             // Si se cambia a eliminatoria después, no tendrá partidos automáticamente.
-             console.log(`Torneo ${idTorneoInt} cambiado a formato Eliminatoria (${cantidadFinal} equipos). Fixture NO se regenera automáticamente en edición.`);
+             // NOTA: No regeneramos fixture al cambiar A eliminatoria en edición.
+             console.log(`Torneo ${idTorneoInt} cambiado a Eliminatoria (${cantidadFinal} equipos).`);
+        } else if (formatoFinal === 'liga') {
+             // --- VALIDACIÓN CANTIDAD LIGA AL EDITAR ---
+             if (!cantidad_equipos || cantidad_equipos < 4 || cantidad_equipos > 30) { throw new Error('Para Liga, equipos debe ser entre 4 y 30.'); }
+             cantidadFinal = cantidad_equipos; // Permitir cambiar cantidad en liga
+             // --- FIN VALIDACIÓN LIGA ---
         } else {
-             // Si se cambia a LIGA (o se mantiene LIGA), nos aseguramos que cantidad sea NULL
-             cantidadFinal = null;
+             cantidadFinal = null; // Si fuera otro formato hipotético
         }
+
+        // Si se cambió DE Liga A Eliminatoria (raro, pero posible si no era eliminatoria antes)
+        // O si se cambió A Liga desde otro formato (no eliminatoria)
+        // No hacemos nada con los partidos por ahora. Si hubiera partidos de liga previos, se mantendrían.
+        // Si se cambia a Eliminatoria, NO se generan partidos.
+
     } else {
-        // Si el torneo original ERA eliminatoria, IGNORAMOS cualquier cambio en formato/cantidad enviado
-        console.log(`Torneo ${idTorneoInt} es Eliminatoria, ignorando cambios de formato/cantidad en edición.`);
-        // formatoFinal y cantidadFinal ya tienen los valores originales del torneoActual
+        // Si ERA eliminatoria, ignoramos cambios de formato/cantidad
+        console.log(`Torneo ${idTorneoInt} es Eliminatoria, ignorando cambios de formato/cantidad.`);
+        // formatoFinal y cantidadFinal ya tienen los valores originales
     }
 
-
-    // 4. Actualizar el torneo en la base de datos con los valores finales
     const torneoActualizado = await torneoModel.editarTorneo(
         idTorneoInt, nombre_torneo, fecha_inicio, fecha_fin, tipo_torneo,
-        formatoFinal, // Usamos el formato decidido
-        cantidadFinal // Usamos la cantidad decidida (puede ser null)
+        formatoFinal, cantidadFinal
     );
 
     return torneoActualizado;
 }
-// --- FIN editarTorneoService SIMPLIFICADO ---
+// --- FIN editarTorneoService ---
 
 
 module.exports = {

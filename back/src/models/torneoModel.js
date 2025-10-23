@@ -1,14 +1,23 @@
 const pool = require('./db');
 
 // Crear torneo
-async function crearTorneo(nombre_torneo, fecha_inicio, fecha_fin, tipo_torneo, formato) {
+async function crearTorneo(nombre_torneo, fecha_inicio, fecha_fin, tipo_torneo, formato, cantidad_equipos = null) {
   const result = await pool.query(
-    `INSERT INTO torneos(nombre_torneo, fecha_inicio, fecha_fin, tipo_torneo, formato) 
-     VALUES($1, $2, $3, $4, $5) 
+    `INSERT INTO torneos(nombre_torneo, fecha_inicio, fecha_fin, tipo_torneo, formato, cantidad_equipos) 
+     VALUES($1, $2, $3, $4, $5, $6) 
      RETURNING *`,
-    [nombre_torneo, fecha_inicio, fecha_fin, tipo_torneo, formato]
+    [nombre_torneo, fecha_inicio, fecha_fin, tipo_torneo, formato, cantidad_equipos]
   );
   return result.rows[0];
+}
+
+// Buscar torneo por ID
+async function findTorneoById(id_torneo) {
+  const result = await pool.query(
+    `SELECT * FROM torneos WHERE id_torneo = $1`,
+    [id_torneo]
+  );
+  return result.rows[0] || null;
 }
 
 // Traer todos los torneos
@@ -56,6 +65,7 @@ async function editarTorneo(id_torneo, nombre_torneo, fecha_inicio, fecha_fin, t
 
 module.exports = {
   crearTorneo,
+  findTorneoById,
   findAllTorneos,
   deleteTorneo,
   editarTorneo

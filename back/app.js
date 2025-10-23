@@ -7,7 +7,8 @@ const equiposRouter = require('./src/routes/equipoRoute.js');
 const torneoRouter = require('./src/routes/torneoRoute.js');
 const inscripcionesRouter = require('./src/routes/inscripciones.router.js');
 const usuarioRoutes = require('./src/routes/usuarioRoutes.js');
-const partidoRouter = require('./src/routes/partidoRoute.js'); // <-- AÑADIR
+const partidoRouter = require('./src/routes/partidoRoute.js'); 
+const tablaPosicionesRouter = require('./src/routes/tablaPosicionesRoute.js');
 
 const verificarToken = require('./src/middleware/authMiddleware.js');
 
@@ -54,12 +55,26 @@ app.use((req, res, next) => {
   verificarToken(req, res, next);
 });
 
+// --- Middleware de seguridad ---
+app.use((req, res, next) => {
+  // ... (rutasPublicasPOST)
+  const rutasPublicasGET = [
+    '/torneo',
+    /^\/partidos\/\d+$/,
+    /^\/tabla\/\d+$/    
+  ];
+  // ... (lógica del middleware)
+  verificarToken(req, res, next);
+});
+// --- Fin Middleware ---
+
 // Rutas
 app.use('/equipos', equiposRouter);
 app.use('/torneo', torneoRouter);
 app.use('/inscripciones', inscripcionesRouter);
 app.use('/usuarios', usuarioRoutes);
-app.use('/partidos', partidoRouter); // <-- AÑADIR
+app.use('/partidos', partidoRouter);
+app.use('/tabla', tablaPosicionesRouter);
 
 app.get('/', (req, res) => {
   res.send('Backend de torneos funcionando');

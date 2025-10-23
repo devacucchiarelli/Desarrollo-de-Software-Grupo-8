@@ -1,0 +1,84 @@
+/* --- Estilos Generales Contenedor --- */
+.tabla-container { max-width: 900px; margin: 2rem auto; padding: 2rem; background-color: var(--color-bg-light, #1e293b); border-radius: var(--border-radius-lg, 0.75rem); border: 1px solid var(--color-border, #334155); box-shadow: var(--shadow-lg); color: var(--color-text-primary, #e2e8f0); }
+.tabla-container h2 { text-align: center; color: var(--color-accent-secondary, #facc15); margin-bottom: 2rem; font-size: 2rem; font-weight: 600; }
+.btn-volver { /* ... */ } .btn-volver:hover { /* ... */ } .error-message { /* ... */ }
+/* --- Estilos de la Tabla --- */
+.tabla-posiciones { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); border-radius: var(--border-radius-md); overflow: hidden; }
+.tabla-posiciones thead tr { background-color: var(--color-bg-dark, #0f172a); color: var(--color-accent-primary, #38bdf8); text-align: center; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.tabla-posiciones th { padding: 12px 10px; }
+.tabla-posiciones tbody tr { border-bottom: 1px solid var(--color-border, #334155); transition: background-color 0.2s ease-in-out; }
+.tabla-posiciones tbody tr:last-of-type { border-bottom: none; }
+.tabla-posiciones tbody tr:nth-of-type(even) { background-color: rgba(0, 0, 0, 0.1); }
+.tabla-posiciones tbody tr:hover { background-color: rgba(56, 189, 248, 0.1); }
+.tabla-posiciones td { padding: 10px 10px; text-align: center; color: var(--color-text-secondary, #94a3b8); }
+.tabla-posiciones td:first-child { font-weight: 600; color: var(--color-text-primary); }
+.tabla-posiciones td.nombre-equipo { text-align: left; font-weight: 500; color: var(--color-text-primary); padding-left: 15px; }
+.tabla-posiciones td.puntos { font-weight: bold; color: var(--color-accent-secondary, #facc15); }
+.tabla-container > p { text-align: center; color: var(--color-text-secondary); margin-top: 2rem; font-style: italic; }
+
+/* --- Estilos para Edición de Nombres --- */
+.nombre-clickeable {
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    display: inline-block;
+    min-width: 100px;
+}
+
+.nombre-clickeable:hover {
+    background-color: rgba(56, 189, 248, 0.2);
+}
+
+.edicion-nombre {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.input-nombre {
+    background-color: var(--color-bg-dark, #0f172a);
+    border: 2px solid var(--color-accent-primary, #38bdf8);
+    color: var(--color-text-primary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    min-width: 120px;
+}
+
+.input-nombre:focus {
+    outline: none;
+    border-color: var(--color-accent-secondary, #facc15);
+    box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.2);
+}
+
+.botones-edicion {
+    display: flex;
+    gap: 4px;
+}
+
+.btn-guardar, .btn-cancelar {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 3px;
+    font-size: 0.8rem;
+    transition: background-color 0.2s ease;
+}
+
+.btn-guardar {
+    color: #10b981;
+}
+
+.btn-guardar:hover {
+    background-color: rgba(16, 185, 129, 0.2);
+}
+
+.btn-cancelar {
+    color: #ef4444;
+}
+
+.btn-cancelar:hover {
+    background-color: rgba(239, 68, 68, 0.2);
+}
