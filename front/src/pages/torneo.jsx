@@ -118,7 +118,8 @@ export default function Torneos() {
                                 <li key={i} className="torneo-item">
                                     <strong>{t.nombre_torneo}</strong><br />
                                     Tipo: {t.tipo_torneo} - Formato: {t.formato}<br />
-                                    Inicio: {t.fecha_inicio} - Fin: {t.fecha_fin}
+                                    Inicio: {t.fecha_inicio} - Fin: {t.fecha_fin}<br />
+                                    id : {t.id_torneo}<br />
                                     <div style={{ marginTop: '10px' }}>
                                         {equiposInscritos[t.id_torneo] ? (
                                             <button

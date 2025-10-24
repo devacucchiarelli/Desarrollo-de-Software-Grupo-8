@@ -57,6 +57,9 @@ const UsuarioService = {
       JWT_SECRET,
       { expiresIn: '1d' }
     );
+    console.log('Usuario encontrado:', usuario);
+    console.log('Generando token con id_usuario:', usuario.id_usuario);
+
     console.log('Token generado:', token);
 
     return { usuario, token };

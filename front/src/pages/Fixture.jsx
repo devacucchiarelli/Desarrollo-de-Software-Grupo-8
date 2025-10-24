@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+// Asegúrate que la ruta al CSS sea correcta. Si creaste TablaPosiciones.css,
+// quizás este debería ser fixture.css o un nombre similar.
 import '../styles/css/fixture.css';
 
 function EditMatchModal({ partido, onClose, onSave, isAdmin }) {
@@ -178,9 +180,8 @@ function EditMatchModal({ partido, onClose, onSave, isAdmin }) {
 
 // --- Fin Componente Modal ---
 
-// --- Componente Partido (NUEVO) ---
-// Extraemos la lógica de renderizar un partido a un componente reutilizable
-function MatchBox({ partido, isAdmin, onEditClick, onDeleteClick }) {
+// --- Componente Partido (MODIFICADO: Sin botón eliminar) ---
+function MatchBox({ partido, isAdmin, onEditClick }) { // Quitamos onDeleteClick de props
     return (
         <div
             key={partido.id_partido}
@@ -199,13 +200,7 @@ function MatchBox({ partido, isAdmin, onEditClick, onDeleteClick }) {
                     <span className="resultado">{partido.resultado_visitante ?? '-'}</span>
                 </div>
             </div>
-            {isAdmin && (
-                <button
-                    onClick={(e) => { e.stopPropagation(); onDeleteClick(partido); }}
-                    className="btn-eliminar-bracket"
-                    title="Eliminar partido"
-                >🗑️</button>
-            )}
+            {/* --- SE ELIMINÓ EL BOTÓN DE BORRAR --- */}
         </div>
     );
 }
@@ -220,14 +215,13 @@ export default function Fixture({ isAdmin }) {
   const navigate = useNavigate();
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedPartido, setSelectedPartido] = useState(null);
+  const [bracketSize, setBracketSize] = useState(0);
 
-  useEffect(() => {
-    cargarPartidos();
-  }, [idTorneo]);
+  useEffect(() => { cargarPartidos(); }, [idTorneo]);
 
   const cargarPartidos = async () => {
-    // ... (Sin cambios en cargarPartidos)
-    setLoading(true); setError(null); try { const response = await fetch(`http://localhost:3000/partidos/${idTorneo}`, { credentials: 'include' }); if (!response.ok) { const errorData = await response.json().catch(() => ({})); throw new Error(errorData.error || `Error ${response.status}: No se pudo cargar el fixture`); } const data = await response.json(); setPartidos(data); } catch (err) { console.error("Error detallado:", err); setError(err.message); } finally { setLoading(false); }
+    // ... (Sin cambios aquí)
+    setLoading(true); setError(null); setBracketSize(0); try { const response = await fetch(`http://localhost:3000/partidos/${idTorneo}`, { credentials: 'include' }); if (!response.ok) { const errorData = await response.json().catch(() => ({})); throw new Error(errorData.error || `Error ${response.status}: No se pudo cargar el fixture`); } const data = await response.json(); setPartidos(data); if (data.length === 7) setBracketSize(8); else if (data.length === 15) setBracketSize(16); else if (data.length === 31) setBracketSize(32); else if (data.length > 0) setError("Número inesperado de partidos recibidos."); } catch (err) { console.error("Error detallado:", err); setError(err.message); } finally { setLoading(false); }
   };
 
   const handleOpenEditModal = (partido) => { /* ... (Sin cambios) ... */ setSelectedPartido(partido); setShowEditModal(true); };
@@ -286,22 +280,19 @@ export default function Fixture({ isAdmin }) {
 
   const handleDelete = async (partido) => { /* ... (Sin cambios) ... */ if (window.confirm(`¿Seguro que querés eliminar el partido ${partido.equipo_local || '?'} vs ${partido.equipo_visitante || '?'}?`)) { try { const response = await fetch(`http://localhost:3000/partidos/${partido.id_partido}`, { method: 'DELETE', credentials: 'include' }); if (!response.ok) { const errorData = await response.json().catch(() => ({})); throw new Error(errorData.error || `Error ${response.status}: No tenés permiso`); } cargarPartidos(); } catch (err) { alert(`Error al eliminar: ${err.message}`); } } };
 
-  // --- Lógica para dividir partidos en TODAS las rondas ---
-  // Asumiendo que el backend devuelve los 15 partidos en orden: 8 octavos, 4 cuartos, 2 semis, 1 final
-  const round1Left = partidos.slice(0, 4);        // Octavos Izquierda
-  const round1Right = partidos.slice(4, 8);       // Octavos Derecha
-  const quarterFinalsLeft = partidos.slice(8, 10); // Cuartos Izquierda
-  const quarterFinalsRight = partidos.slice(10, 12);// Cuartos Derecha
-  const semiFinalsLeft = partidos.slice(12, 13);  // Semifinal Izquierda (1 partido)
-  const semiFinalsRight = partidos.slice(13, 14); // Semifinal Derecha (1 partido)
-  const finalMatch = partidos.slice(14, 15);      // Final (1 partido)
-  // --- Fin Lógica Rondas ---
+  // --- SE ELIMINÓ LA FUNCIÓN handleDelete ---
 
+  // --- Lógica de slicing (Sin cambios) ---
+  let rounds = {};
+  if (bracketSize === 32) { rounds.r32Left = partidos.slice(0, 8); rounds.r32Right = partidos.slice(8, 16); rounds.r16Left = partidos.slice(16, 20); rounds.r16Right = partidos.slice(20, 24); rounds.qfLeft = partidos.slice(24, 26); rounds.qfRight = partidos.slice(26, 28); rounds.sfLeft = partidos.slice(28, 29); rounds.sfRight = partidos.slice(29, 30); rounds.final = partidos.slice(30, 31); }
+  else if (bracketSize === 16) { rounds.r16Left = partidos.slice(0, 4); rounds.r16Right = partidos.slice(4, 8); rounds.qfLeft = partidos.slice(8, 10); rounds.qfRight = partidos.slice(10, 12); rounds.sfLeft = partidos.slice(12, 13); rounds.sfRight = partidos.slice(13, 14); rounds.final = partidos.slice(14, 15); }
+  else if (bracketSize === 8) { rounds.qfLeft = partidos.slice(0, 2); rounds.qfRight = partidos.slice(2, 4); rounds.sfLeft = partidos.slice(4, 5); rounds.sfRight = partidos.slice(5, 6); rounds.final = partidos.slice(6, 7); }
+  // --- Fin Lógica Slicing ---
 
   if (loading) return <div className="fixture-container"><p>Cargando fixture...</p></div>;
-  if (error) return ( /* ... (Sin cambios en manejo de error) ... */ <div className="fixture-container"> <button onClick={() => navigate('/')} className="btn-volver">← Volver</button> <p className="error-message">Error: {error}</p> <button onClick={cargarPartidos}>Reintentar Carga</button> </div> );
+  if (error) return ( <div className="fixture-container"> <button onClick={() => navigate('/')} className="btn-volver">← Volver</button> <p className="error-message">Error: {error}</p> <button onClick={cargarPartidos}>Reintentar Carga</button> </div> );
 
-  // Helper para renderizar una columna de partidos
+  // Helper renderizar columna (MODIFICADO: ya no pasa onDeleteClick)
   const renderMatchColumn = (matches) => (
       matches.map(partido => (
           <MatchBox
@@ -309,66 +300,33 @@ export default function Fixture({ isAdmin }) {
               partido={partido}
               isAdmin={isAdmin}
               onEditClick={handleOpenEditModal}
-              onDeleteClick={handleDelete}
+              // onDeleteClick ya no se pasa
           />
       ))
   );
 
   return (
-    <div className="fixture-container">
+    <div className={`fixture-container bracket-${bracketSize || 'unknown'}`}>
       <button onClick={() => navigate('/')} className="btn-volver">← Volver</button>
-      <h2>Cuadro del Torneo</h2>
+      <h2>Cuadro del Torneo ({bracketSize} Equipos)</h2>
 
-      {partidos.length < 15 ? ( // Verificamos si tenemos todos los partidos esperados
-        <p>Fixture incompleto o no generado correctamente (se esperan 15 partidos).</p>
-      ) : (
-        // --- INICIO NUEVA ESTRUCTURA BRACKET ---
+      {partidos.length === 0 && !loading ? (
+        <p>No hay partidos generados para este torneo.</p>
+      ) : bracketSize > 0 ? (
         <div className="bracket">
-
-          {/* Columna Octavos Izquierda */}
-          <div className="round round-1 round-left">
-            {renderMatchColumn(round1Left)}
-          </div>
-
-          {/* Columna Cuartos Izquierda */}
-          <div className="round round-2 round-left">
-            {renderMatchColumn(quarterFinalsLeft)}
-          </div>
-
-          {/* Columna Semifinal Izquierda */}
-          <div className="round round-3 round-left">
-             {renderMatchColumn(semiFinalsLeft)}
-          </div>
-
-          {/* Columna Final */}
-          <div className="round round-final">
-             <div className="final-match-placeholder">
-                <div className="final-trophy">🏆</div>
-                {/* Renderizamos el partido final usando el componente */}
-                {finalMatch.length > 0 && renderMatchColumn(finalMatch)}
-             </div>
-          </div>
-
-          {/* Columna Semifinal Derecha */}
-           <div className="round round-3 round-right">
-             {renderMatchColumn(semiFinalsRight)}
-          </div>
-
-          {/* Columna Cuartos Derecha */}
-          <div className="round round-2 round-right">
-             {renderMatchColumn(quarterFinalsRight)}
-          </div>
-
-          {/* Columna Octavos Derecha */}
-          <div className="round round-1 round-right">
-            {renderMatchColumn(round1Right)}
-          </div>
-
+          {/* Renderizado Condicional de Rondas (SIN CAMBIOS EN JSX) */}
+          {bracketSize === 32 && <div className="round round-5 round-left">{renderMatchColumn(rounds.r32Left)}</div>}
+          {bracketSize >= 16 && <div className="round round-4 round-left">{renderMatchColumn(rounds.r16Left)}</div>}
+          <div className="round round-3 round-left">{renderMatchColumn(rounds.qfLeft)}</div>
+          <div className="round round-2 round-left">{renderMatchColumn(rounds.sfLeft)}</div>
+          <div className="round round-final"> <div className="final-match-placeholder"> <div className="final-trophy">🏆</div> {rounds.final && renderMatchColumn(rounds.final)} </div> </div>
+          <div className="round round-2 round-right">{renderMatchColumn(rounds.sfRight)}</div>
+          <div className="round round-3 round-right">{renderMatchColumn(rounds.qfRight)}</div>
+          {bracketSize >= 16 && <div className="round round-4 round-right">{renderMatchColumn(rounds.r16Right)}</div>}
+          {bracketSize === 32 && <div className="round round-5 round-right">{renderMatchColumn(rounds.r32Right)}</div>}
         </div>
-        // --- FIN NUEVA ESTRUCTURA BRACKET ---
-      )}
+      ) : null }
 
-      {/* --- Modal (sin cambios) --- */}
       {showEditModal && selectedPartido && (
         <EditMatchModal partido={selectedPartido} onClose={handleCloseEditModal} onSave={handleSaveChanges} isAdmin={isAdmin} />
       )}
