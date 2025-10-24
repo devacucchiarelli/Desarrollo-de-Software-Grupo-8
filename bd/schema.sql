@@ -68,25 +68,35 @@ CREATE TABLE equipos_torneo (
         ON DELETE CASCADE
 );
 
--- Partidos (Fixture)
+-- Partidos (Fixture) - ACTUALIZADO CON id_equipo_local e id_equipo_visitante
 CREATE TABLE partidos (
     id_partido SERIAL PRIMARY KEY,
     id_torneo INT NOT NULL,
     fecha_partido TIMESTAMPTZ DEFAULT NOW(),
     equipo_local VARCHAR(100) DEFAULT 'Equipo A',
     equipo_visitante VARCHAR(100) DEFAULT 'Equipo B',
+    id_equipo_local INT,
+    id_equipo_visitante INT,
     resultado_local INT DEFAULT 0,
     resultado_visitante INT DEFAULT 0,
     CONSTRAINT fk_torneo
         FOREIGN KEY (id_torneo)
         REFERENCES torneos(id_torneo)
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT fk_equipo_local
+        FOREIGN KEY (id_equipo_local)
+        REFERENCES equipos(id_equipo)
+        ON DELETE SET NULL,
+    CONSTRAINT fk_equipo_visitante
+        FOREIGN KEY (id_equipo_visitante)
+        REFERENCES equipos(id_equipo)
+        ON DELETE SET NULL
 );
 
 -- Estadísticas por partido (resumen general del partido)
 CREATE TABLE estadisticas_partido (
     id_estadistica_partido SERIAL PRIMARY KEY,
-    id_partido INT NOT NULL,
+    id_partido INT NOT NULL UNIQUE,  -- ✅ AGREGADO UNIQUE
     id_ganador INT,
     id_goleador INT,
     goles_local INT DEFAULT 0,
@@ -117,6 +127,7 @@ CREATE TABLE estadisticas_jugador_partido (
     goles INT DEFAULT 0,
     amarillas INT DEFAULT 0,
     rojas INT DEFAULT 0,
+    UNIQUE (id_partido, id_jugador),  -- ✅ AGREGADO UNIQUE CONSTRAINT
     CONSTRAINT fk_partido_jugador
         FOREIGN KEY (id_partido)
         REFERENCES partidos(id_partido)
