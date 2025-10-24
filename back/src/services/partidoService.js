@@ -40,7 +40,6 @@ async function generarPartidosParaTorneo(id_torneo, cantidad_equipos) {
         if (rondaActual === 1) { rondaLabel = 'Final'; fechaRonda.setDate(fechaActual.getDate() + 15); }
     }
 
-
     console.log(` -> Generando ${partidosPorRonda} partidos de ${rondaLabel}`);
 
     // Bucle para los partidos de ESTA ronda
@@ -59,7 +58,6 @@ async function generarPartidosParaTorneo(id_torneo, cantidad_equipos) {
              equipo_local = `Ganador ${rondaLabel === 'Cuartos' ? 'O' : (rondaLabel === 'Semifinal' ? 'CF' : 'SF')}${i*2 + 1}`;
              equipo_visitante = `Ganador ${rondaLabel === 'Cuartos' ? 'O' : (rondaLabel === 'Semifinal' ? 'CF' : 'SF')}${i*2 + 2}`;
         }
-
 
         // Creamos el partido en la DB
         try {
@@ -82,46 +80,86 @@ async function generarPartidosParaTorneo(id_torneo, cantidad_equipos) {
 }
 // --- FIN Lógica de generación ---
 
-// --- El resto de las funciones (getPartidosPorTorneoService, etc.) sin cambios ---
+// --- El resto de las funciones ---
 async function getPartidosPorTorneoService(id_torneo) {
   return await partidoModel.getPartidosPorTorneo(id_torneo);
 }
+
 async function updatePartidoService(id_partido, data) {
   const {
-    fecha_partido, equipo_local, equipo_visitante,
-    resultado_local, resultado_visitante,
-    goleadores_local = [], goleadores_visitante = [],
-    amarillas_local = [], amarillas_visitante = [],
-    rojas_local = [], rojas_visitante = []
+    fecha_partido, 
+    equipo_local, 
+    equipo_visitante,
+    id_equipo_local,        // NUEVO - ID del equipo local
+    id_equipo_visitante,    // NUEVO - ID del equipo visitante
+    resultado_local, 
+    resultado_visitante,
+    goleadores = [],        // Array simple de IDs de jugadores
+    amarillas = [],         // Array simple de IDs de jugadores
+    rojas = []              // Array simple de IDs de jugadores
   } = data;
 
-  // Actualizar tabla partidos
+  console.log('📝 Actualizando partido:', {
+    id_partido,
+    equipo_local,
+    equipo_visitante,
+    id_equipo_local,
+    id_equipo_visitante,
+    resultado_local,
+    resultado_visitante
+  });
+
+  // Actualizar tabla partidos CON los IDs de equipos
   await partidoModel.updatePartido(
-    id_partido, fecha_partido, equipo_local, equipo_visitante,
-    resultado_local, resultado_visitante
+    id_partido, 
+    fecha_partido, 
+    equipo_local, 
+    equipo_visitante,
+    id_equipo_local,        // Pasar el ID
+    id_equipo_visitante,    // Pasar el ID
+    resultado_local, 
+    resultado_visitante
   );
 
-  // Actualizar estadísticas por jugador
-  const todasEstadisticas = [
-    ...goleadores_local.map(g => ({ ...g, goles: g.goles, amarillas: 0, rojas: 0 })),
-    ...goleadores_visitante.map(g => ({ ...g, goles: g.goles, amarillas: 0, rojas: 0 })),
-    ...amarillas_local.map(a => ({ id_jugador: a.id_jugador, goles: 0, amarillas: a.cantidad, rojas: 0 })),
-    ...amarillas_visitante.map(a => ({ id_jugador: a.id_jugador, goles: 0, amarillas: a.cantidad, rojas: 0 })),
-    ...rojas_local.map(r => ({ id_jugador: r.id_jugador, goles: 0, amarillas: 0, rojas: r.cantidad })),
-    ...rojas_visitante.map(r => ({ id_jugador: r.id_jugador, goles: 0, amarillas: 0, rojas: r.cantidad }))
-  ];
+  console.log('⚽ Estadísticas recibidas:', { goleadores, amarillas, rojas });
 
-  // Insertar/actualizar en la DB
-  for (const stat of todasEstadisticas) {
+  // Limpiar estadísticas anteriores del partido (opcional)
+  // await partidoModel.deleteEstadisticasPartido(id_partido);
+
+  // Insertar estadísticas de goleadores (puede haber múltiples goles del mismo jugador)
+  for (const id_jugador of goleadores) {
     await partidoModel.upsertEstadisticaJugadorPartido(
       id_partido,
-      stat.id_jugador,
-      stat.goles,
-      stat.amarillas,
-      stat.rojas
+      id_jugador,
+      1, // 1 gol por cada entrada
+      0,
+      0
     );
   }
 
+  // Insertar tarjetas amarillas
+  for (const id_jugador of amarillas) {
+    await partidoModel.upsertEstadisticaJugadorPartido(
+      id_partido,
+      id_jugador,
+      0,
+      1, // 1 amarilla
+      0
+    );
+  }
+
+  // Insertar tarjetas rojas
+  for (const id_jugador of rojas) {
+    await partidoModel.upsertEstadisticaJugadorPartido(
+      id_partido,
+      id_jugador,
+      0,
+      0,
+      1 // 1 roja
+    );
+  }
+
+  console.log('✅ Partido y estadísticas actualizadas correctamente');
   return { message: 'Partido y estadísticas actualizadas' };
 }
 
@@ -129,7 +167,6 @@ async function deletePartidoService(id_partido) {
   return await partidoModel.deletePartido(id_partido);
 }
 // --- Fin resto de funciones ---
-
 
 module.exports = {
   generarPartidosParaTorneo,

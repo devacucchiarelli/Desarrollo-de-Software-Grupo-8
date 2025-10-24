@@ -33,6 +33,37 @@ const EstadisticasController = {
       res.status(500).json({ error: 'Error al obtener estadísticas del partido' });
     }
   },
+    async obtenerUltimosPartidos(req, res) {
+    try {
+      const partidos = await EstadisticasService.obtenerUltimosPartidos();
+      res.json(partidos);
+    } catch (error) {
+      console.error('Error al obtener últimos partidos:', error);
+      res.status(500).json({ error: 'Error al obtener estadísticas de partidos' });
+    }
+  },
+    // ✅ NUEVO: Obtener estadísticas completas de un torneo
+  async obtenerEstadisticasTorneo(req, res) {
+    try {
+      const { id_torneo } = req.params;
+      const estadisticas = await EstadisticasService.obtenerEstadisticasTorneo(id_torneo);
+      res.json(estadisticas);
+    } catch (error) {
+      console.error('Error al obtener estadísticas del torneo:', error);
+      res.status(500).json({ error: error.message || 'Error al obtener estadísticas del torneo' });
+    }
+  },
+
+  // ✅ NUEVO: Obtener lista de torneos con estadísticas
+  async obtenerTorneosConEstadisticas(req, res) {
+    try {
+      const torneos = await EstadisticasService.obtenerTorneosConEstadisticas();
+      res.json(torneos);
+    } catch (error) {
+      console.error('Error al obtener torneos:', error);
+      res.status(500).json({ error: 'Error al obtener lista de torneos' });
+    }
+  },
 };
 
 module.exports = { EstadisticasController };

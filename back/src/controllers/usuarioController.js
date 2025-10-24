@@ -24,7 +24,7 @@ const UsuarioController = {
   },
 
   async login(req, res) {
-      console.log('Body recibido en login:', req.body);
+    console.log('Body recibido en login:', req.body);
 
     try {
       const { email, password } = req.body;
@@ -47,6 +47,24 @@ const UsuarioController = {
     res.clearCookie('token');
     res.json({ message: 'Sesión cerrada correctamente' });
   },
+
+  async getMeController(req, res) {
+    try {
+      if (!req.usuario) {  // ← Cambiar req.user por req.usuario
+        return res.status(401).json({ error: 'No autenticado' });
+      }
+
+      res.status(200).json({
+        id_usuario: req.usuario.id_usuario,
+        nombre: req.usuario.nombre,
+        email: req.usuario.email,
+        rol: req.usuario.rol
+      });
+    } catch (error) {
+      console.error('Error al obtener usuario:', error);
+      res.status(500).json({ error: error.message });
+    }
+  }
 };
 
 module.exports = { UsuarioController };
