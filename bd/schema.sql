@@ -34,7 +34,8 @@ CREATE TABLE torneos (
     fecha_inicio DATE NOT NULL,
     fecha_fin DATE NOT NULL,
     tipo_torneo tipo_torneo_enum NOT NULL,
-    formato formato_torneo_enum NOT NULL
+    formato formato_torneo_enum NOT NULL,
+    cantidad_equipos INT DEFAULT 0
 );
 
 -- Jugadores_Equipo (tabla de unión)

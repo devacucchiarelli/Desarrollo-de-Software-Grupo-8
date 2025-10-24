@@ -24,6 +24,8 @@ const UsuarioController = {
   },
 
   async login(req, res) {
+      console.log('Body recibido en login:', req.body);
+
     try {
       const { email, password } = req.body;
       const { usuario, token } = await UsuarioService.login({ email, password });

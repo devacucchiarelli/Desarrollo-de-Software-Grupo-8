@@ -55,17 +55,7 @@ app.use((req, res, next) => {
   verificarToken(req, res, next);
 });
 
-// --- Middleware de seguridad ---
-app.use((req, res, next) => {
-  // ... (rutasPublicasPOST)
-  const rutasPublicasGET = [
-    '/torneo',
-    /^\/partidos\/\d+$/,
-    /^\/tabla\/\d+$/    
-  ];
-  // ... (lógica del middleware)
-  verificarToken(req, res, next);
-});
+
 // --- Fin Middleware ---
 
 // Rutas
