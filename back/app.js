@@ -9,6 +9,7 @@ const inscripcionesRouter = require('./src/routes/inscripciones.router.js');
 const usuarioRoutes = require('./src/routes/usuarioRoutes.js');
 const partidoRouter = require('./src/routes/partidoRoute.js'); 
 const tablaPosicionesRouter = require('./src/routes/tablaPosicionesRoute.js');
+const estadisticasRouter = require('./src/routes/estadisticasRoute');
 
 const verificarToken = require('./src/middleware/authMiddleware.js');
 
@@ -75,6 +76,7 @@ app.use('/inscripciones', inscripcionesRouter);
 app.use('/usuarios', usuarioRoutes);
 app.use('/partidos', partidoRouter);
 app.use('/tabla', tablaPosicionesRouter);
+app.use('/estadisticas', estadisticasRouter);
 
 app.get('/', (req, res) => {
   res.send('Backend de torneos funcionando');

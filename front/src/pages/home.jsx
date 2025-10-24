@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import '../styles/home.css';
 import { useNavigate } from "react-router-dom";
+import EstadisticasTorneo from "../components/EstadisticasTorneo";
+import "../styles/css/estadisticas.css";
+import "../styles/css/estadisticas-home.css"; // opcional
+
 
 const API_URL = 'http://localhost:3000/torneo';
 
