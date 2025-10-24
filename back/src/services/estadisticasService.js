@@ -1,4 +1,4 @@
-const pool = require('../db');
+const pool = require('../models/db');
 
 const EstadisticasService = {
   // Crear o actualizar estadísticas globales del partido
