@@ -7,8 +7,9 @@ const equiposRouter = require('./src/routes/equipoRoute.js');
 const torneoRouter = require('./src/routes/torneoRoute.js');
 const inscripcionesRouter = require('./src/routes/inscripciones.router.js');
 const usuarioRoutes = require('./src/routes/usuarioRoutes.js');
-const partidoRouter = require('./src/routes/partidoRoute.js'); 
 const tablaPosicionesRouter = require('./src/routes/tablaPosicionesRoute.js');
+const estadisticasRoutes = require('./src/routes/estadisticasRoutes.js');
+const partidoRouter = require('./src/routes/partidoRoute.js');
 
 const verificarToken = require('./src/middleware/authMiddleware.js');
 
@@ -63,6 +64,7 @@ app.use('/equipos', equiposRouter);
 app.use('/torneo', torneoRouter);
 app.use('/inscripciones', inscripcionesRouter);
 app.use('/usuarios', usuarioRoutes);
+app.use('/api/estadisticas', estadisticasRoutes);
 app.use('/partidos', partidoRouter);
 app.use('/tabla', tablaPosicionesRouter);
 
