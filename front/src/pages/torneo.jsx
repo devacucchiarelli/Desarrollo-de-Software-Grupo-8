@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../styles/css/torneos.css'
 
-export default function Torneos({ isAdmin }) {
+export default function Torneos({ usuario }) {
     const navigate = useNavigate()
     const [torneos, setTorneos] = useState([])
     const [mostrarForm, setMostrarForm] = useState(false)
     const [error, setError] = useState(null)
     const [equiposInscritos, setEquiposInscritos] = useState({})
     const [todosLosEquipos, setTodosLosEquipos] = useState([])
+    const [miEquipo, setMiEquipo] = useState(null)
     const [mostrarModalInscripcion, setMostrarModalInscripcion] = useState(false)
     const [torneoSeleccionado, setTorneoSeleccionado] = useState(null)
     const [equipoSeleccionado, setEquipoSeleccionado] = useState('')
@@ -16,7 +17,11 @@ export default function Torneos({ isAdmin }) {
         nombre: "", fechaInicio: "", fechaFin: "", formato: "", tipo: "", cantidadEquipos: ""
     })
 
-    const ID_EQUIPO = 2; // ID del equipo del usuario actual
+    // Helpers de roles
+    const isAdmin = usuario?.rol === 'administrador';
+    const isCapitan = usuario?.rol === 'capitan';
+    const isJugador = usuario?.rol === 'jugador';
+
     const API_TORNEOS = 'http://localhost:3000/torneo';
     const API_INSCRIPCIONES = 'http://localhost:3000/inscripciones';
     const API_EQUIPOS = 'http://localhost:3000/equipos';
@@ -24,10 +29,27 @@ export default function Torneos({ isAdmin }) {
     useEffect(() => {
         cargarTorneos()
         cargarInscripciones()
+        
         if (isAdmin) {
             cargarTodosLosEquipos()
+        } else if (isCapitan && usuario?.id_usuario) {
+            cargarMiEquipo()
         }
-    }, [isAdmin])
+    }, [usuario])
+
+    const cargarMiEquipo = async () => {
+        try {
+            const response = await fetch(`${API_EQUIPOS}/mi-equipo/${usuario.id_usuario}`, {
+                credentials: 'include'
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setMiEquipo(data);
+            }
+        } catch (err) {
+            console.error('Error al cargar mi equipo:', err);
+        }
+    }
 
     const cargarTorneos = async () => {
         try {
@@ -42,23 +64,17 @@ export default function Torneos({ isAdmin }) {
             setTorneos([]);
         }
     }
+
     const cargarInscripciones = async () => {
         try {
             const response = await fetch(API_INSCRIPCIONES, { credentials: 'include' });
             if (!response.ok) throw new Error('Error al cargar inscripciones');
             const inscripciones = await response.json();
 
-            // 🔍 DEBUG: Ver qué llega del backend
-            console.log('📥 Inscripciones recibidas del backend:', inscripciones);
-            console.log('📊 Cantidad total de inscripciones:', inscripciones.length);
-
             const inscripcionesMap = {};
             inscripciones.forEach(ins => {
                 const torneoId = ins.id_torneo;
                 const equipoId = ins.id_equipo;
-
-                // 🔍 DEBUG: Ver cada inscripción procesada
-                console.log(`Procesando: Torneo ${torneoId}, Equipo ${equipoId} (${ins.nombre_equipo})`);
 
                 if (!inscripcionesMap[torneoId]) {
                     inscripcionesMap[torneoId] = [];
@@ -66,17 +82,9 @@ export default function Torneos({ isAdmin }) {
                 inscripcionesMap[torneoId].push(equipoId);
             });
 
-            // 🔍 DEBUG: Ver el resultado final
-            console.log('🗺️ Mapa de inscripciones final:', inscripcionesMap);
-
-            // Ver cuántos equipos hay por torneo
-            Object.keys(inscripcionesMap).forEach(torneoId => {
-                console.log(`Torneo ${torneoId}: ${inscripcionesMap[torneoId].length} equipos`);
-            });
-
             setEquiposInscritos(inscripcionesMap);
         } catch (err) {
-            console.error('❌ Error al cargar inscripciones:', err);
+            console.error('Error al cargar inscripciones:', err);
         }
     }
 
@@ -104,10 +112,12 @@ export default function Torneos({ isAdmin }) {
         setEquipoSeleccionado('');
     }
 
-    const registrarEquipo = async (idTorneo, idEquipo = null) => {
-        const equipoARegistrar = idEquipo || ID_EQUIPO;
+    const registrarEquipo = async (idTorneo, idEquipo) => {
+        if (!idEquipo) {
+            return alert('No se encontró el equipo a registrar');
+        }
 
-        if (equiposInscritos[idTorneo]?.includes(equipoARegistrar)) {
+        if (equiposInscritos[idTorneo]?.includes(idEquipo)) {
             return alert('Este equipo ya está inscrito en este torneo');
         }
 
@@ -117,8 +127,8 @@ export default function Torneos({ isAdmin }) {
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify({
-                    id_torneo: idTorneo,    // ✅ Cambiado
-                    id_equipo: equipoARegistrar  // ✅ Cambiado
+                    id_torneo: idTorneo,
+                    id_equipo: idEquipo
                 })
             });
 
@@ -143,8 +153,16 @@ export default function Torneos({ isAdmin }) {
         registrarEquipo(torneoSeleccionado.id_torneo, parseInt(equipoSeleccionado));
     }
 
+    const handleInscripcionCapitan = (idTorneo) => {
+        if (!miEquipo) {
+            return alert('Primero debes crear tu equipo');
+        }
+        registrarEquipo(idTorneo, miEquipo.id_equipo);
+    }
+
     const miEquipoEstaInscrito = (idTorneo) => {
-        return equiposInscritos[idTorneo]?.includes(ID_EQUIPO);
+        if (!miEquipo) return false;
+        return equiposInscritos[idTorneo]?.includes(miEquipo.id_equipo);
     }
 
     const handleChange = (e) => {
@@ -203,30 +221,48 @@ export default function Torneos({ isAdmin }) {
                                     )}
 
                                     <div style={{ marginTop: '10px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                                        {isAdmin ? (
-                                            // Admin: Siempre puede inscribir equipos
+                                        {/* LÓGICA POR ROLES */}
+                                        
+                                        {/* ADMINISTRADOR: Puede inscribir cualquier equipo */}
+                                        {isAdmin && (
                                             <button
                                                 onClick={() => abrirModalInscripcion(t)}
                                                 className="btn-registrar-equipo"
                                             >
                                                 Inscribir Equipo
                                             </button>
-                                        ) : (
-                                            // Usuario normal: Solo su propio equipo
-                                            miEquipoEstaInscrito(t.id_torneo) ? (
-                                                <button className="btn-inscrito" disabled>
-                                                    ✓ Ya inscrito
-                                                </button>
+                                        )}
+
+                                        {/* CAPITÁN: Solo su equipo */}
+                                        {isCapitan && (
+                                            miEquipo ? (
+                                                miEquipoEstaInscrito(t.id_torneo) ? (
+                                                    <button className="btn-inscrito" disabled>
+                                                        ✓ Mi equipo ya inscrito
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => handleInscripcionCapitan(t.id_torneo)}
+                                                        className="btn-registrar-equipo"
+                                                    >
+                                                        Inscribir Mi Equipo
+                                                    </button>
+                                                )
                                             ) : (
-                                                <button
-                                                    onClick={() => registrarEquipo(t.id_torneo)}
-                                                    className="btn-registrar-equipo"
-                                                >
-                                                    Registrar Mi Equipo
+                                                <button className="btn-sin-equipo" disabled>
+                                                    Primero crea tu equipo
                                                 </button>
                                             )
                                         )}
 
+                                        {/* JUGADOR: Solo puede ver, no inscribir */}
+                                        {isJugador && (
+                                            <span style={{ fontSize: '0.9rem', color: '#666', fontStyle: 'italic' }}>
+                                                Solo tu capitán puede inscribir el equipo
+                                            </span>
+                                        )}
+
+                                        {/* Botones de Ver Fixture/Tabla (todos los roles) */}
                                         {t.formato === 'eliminatoria' && (
                                             <button
                                                 onClick={() => navigate(`/torneo/${t.id_torneo}/fixture`)}
@@ -390,8 +426,8 @@ export default function Torneos({ isAdmin }) {
                 </form>
             )}
 
-            {/* Modal de Inscripción para Admin */}
-            {mostrarModalInscripcion && torneoSeleccionado && (
+            {/* Modal de Inscripción SOLO para Admin */}
+            {mostrarModalInscripcion && torneoSeleccionado && isAdmin && (
                 <div className="modal-backdrop" onClick={cerrarModalInscripcion}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                         <h3>Inscribir Equipo - {torneoSeleccionado.nombre_torneo}</h3>

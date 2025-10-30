@@ -126,117 +126,117 @@ function Estadisticas() {
     );
   }
 
- return (
-  <div className="estadisticas-container">
-    <button onClick={volverALista} className="btn-volver">← Volver a Torneos</button>
-    
-    <h2>{estadisticas.torneo.nombre_torneo}</h2>
+  return (
+    <div className="estadisticas-container">
+      <button onClick={volverALista} className="btn-volver">← Volver a Torneos</button>
 
-    {/* CONTENEDOR HORIZONTAL: GOLEADORES A LA IZQUIERDA, PARTIDOS A LA DERECHA */}
-    <div className="contenedor-horizontal">
-      
-      {/* GOLEADORES (COLUMNA IZQUIERDA) */}
-      {estadisticas.tablaGoleadores.length > 0 && (
-        <div className="seccion-stats seccion-goleadores">
-          <h3>🏆 Goleadores</h3>
-          <table className="tabla-goleadores">
-            <thead>
-              <tr>
-                <th className="posicion">#</th>
-                <th>Jugador</th>
-                <th className="goles">Goles</th>
-              </tr>
-            </thead>
-            <tbody>
-              {estadisticas.tablaGoleadores.map((g, i) => (
-                <tr key={g.id_usuario}>
-                  <td className="posicion">{i + 1}</td>
-                  <td>{g.nombre || g.email}</td>
-                  <td className="goles">{g.total_goles}</td>
+      <h2>{estadisticas.torneo.nombre_torneo}</h2>
+
+      {/* CONTENEDOR HORIZONTAL: GOLEADORES A LA IZQUIERDA, PARTIDOS A LA DERECHA */}
+      <div className="contenedor-horizontal">
+
+        {/* GOLEADORES (COLUMNA IZQUIERDA) */}
+        {estadisticas.tablaGoleadores.length > 0 && (
+          <div className="seccion-stats seccion-goleadores">
+            <h3>🏆 Goleadores</h3>
+            <table className="tabla-goleadores">
+              <thead>
+                <tr>
+                  <th className="posicion">#</th>
+                  <th>Jugador</th>
+                  <th className="goles">Goles</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* PARTIDOS (COLUMNA DERECHA) */}
-      <div className="seccion-stats seccion-partidos">
-        <h3>⚽ Partidos ({estadisticas.partidos.length})</h3>
-        {estadisticas.partidos.length === 0 ? (
-          <div className="mensaje-vacio">No hay partidos jugados</div>
-        ) : (
-          <>
-            <div className="partidos-list">
-              {partidosActuales.map((p) => (
-                <div key={p.id_partido} className="partido-detalle">
-                  <div className="partido-header">
-                    <div className="fecha">
-                      {new Date(p.fecha_partido).toLocaleDateString('es-AR')}
-                    </div>
-                    <div className="resultado">
-                      <div className="equipo">
-                        <span>{p.equipo_local}</span>
-                        <span className="score">{p.resultado_local}</span>
-                      </div>
-                      <div className="equipo">
-                        <span>{p.equipo_visitante}</span>
-                        <span className="score">{p.resultado_visitante}</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {p.jugadores.length > 0 && (
-                    <div className="partido-jugadores">
-                      <h4>Estadísticas:</h4>
-                      <div className="jugadores-grid">
-                        {p.jugadores.map((j) => (
-                          <div key={j.id_jugador} className="jugador-stat">
-                            <span>{j.nombre_jugador || j.email_jugador}</span>
-                            <div className="jugador-numeros">
-                              {j.goles > 0 && <span className="stat-badge goles">⚽ {j.goles}</span>}
-                              {j.amarillas > 0 && <span className="stat-badge amarilla">🟨</span>}
-                              {j.rojas > 0 && <span className="stat-badge roja">🟥</span>}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {/* Paginación */}
-            {totalPaginas > 1 && (
-              <div className="paginacion">
-                <button
-                  className="btn-pagina"
-                  onClick={() => setPaginaActual(paginaActual - 1)}
-                  disabled={paginaActual === 1}
-                >
-                  ← Anterior
-                </button>
-                
-                <span className="paginacion-info">
-                  Página {paginaActual} de {totalPaginas}
-                </span>
-                
-                <button
-                  className="btn-pagina"
-                  onClick={() => setPaginaActual(paginaActual + 1)}
-                  disabled={paginaActual === totalPaginas}
-                >
-                  Siguiente →
-                </button>
-              </div>
-            )}
-          </>
+              </thead>
+              <tbody>
+                {estadisticas.tablaGoleadores.map((g, i) => (
+                  <tr key={g.id_usuario}>
+                    <td className="posicion">{i + 1}</td>
+                    <td>{g.nombre || g.email}</td>
+                    <td className="goles">{g.total_goles}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
+
+        {/* PARTIDOS (COLUMNA DERECHA) */}
+        <div className="seccion-stats seccion-partidos">
+          <h3>⚽ Partidos ({estadisticas.partidos.length})</h3>
+          {estadisticas.partidos.length === 0 ? (
+            <div className="mensaje-vacio">No hay partidos jugados</div>
+          ) : (
+            <>
+              <div className="partidos-list">
+                {partidosActuales.map((p) => (
+                  <div key={p.id_partido} className="partido-detalle">
+                    <div className="partido-header">
+                      <div className="fecha">
+                        {new Date(p.fecha_partido).toLocaleDateString('es-AR')}
+                      </div>
+                      <div className="resultado">
+                        <div className="equipo">
+                          <span className="text-black font-bold">{p.equipo_visitante}</span>
+                          <span className="score">{p.resultado_local}</span>
+                        </div>
+                        <div className="equipo">
+                          <span className="text-black font-bold">{p.equipo_visitante}</span>
+                          <span className="score">{p.resultado_visitante}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {p.jugadores.length > 0 && (
+                      <div className="partido-jugadores">
+                        <h4>Estadísticas:</h4>
+                        <div className="jugadores-grid">
+                          {p.jugadores.map((j) => (
+                            <div key={j.id_jugador} className="jugador-stat">
+                              <span>{j.nombre_jugador || j.email_jugador}</span>
+                              <div className="jugador-numeros">
+                                {j.goles > 0 && <span className="stat-badge goles">⚽ {j.goles}</span>}
+                                {j.amarillas > 0 && <span className="stat-badge amarilla">🟨</span>}
+                                {j.rojas > 0 && <span className="stat-badge roja">🟥</span>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Paginación */}
+              {totalPaginas > 1 && (
+                <div className="paginacion">
+                  <button
+                    className="btn-pagina"
+                    onClick={() => setPaginaActual(paginaActual - 1)}
+                    disabled={paginaActual === 1}
+                  >
+                    ← Anterior
+                  </button>
+
+                  <span className="paginacion-info">
+                    Página {paginaActual} de {totalPaginas}
+                  </span>
+
+                  <button
+                    className="btn-pagina"
+                    onClick={() => setPaginaActual(paginaActual + 1)}
+                    disabled={paginaActual === totalPaginas}
+                  >
+                    Siguiente →
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
 }
 
 export default Estadisticas;

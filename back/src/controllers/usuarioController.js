@@ -50,7 +50,9 @@ const UsuarioController = {
 
   async getMeController(req, res) {
     try {
-      if (!req.usuario) {  // ← Cambiar req.user por req.usuario
+      console.log('🔴 req.usuario en backend:', req.usuario); // ← AGREGAR ESTO
+
+      if (!req.usuario) {
         return res.status(401).json({ error: 'No autenticado' });
       }
 

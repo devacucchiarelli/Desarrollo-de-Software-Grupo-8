@@ -20,11 +20,7 @@ function EditMatchModal({ partido, onClose, onSave, isAdmin, idTorneo }) {
 
   useEffect(() => {
     const inicializar = async () => {
-      console.log('🚀 Iniciando carga del modal para partido:', partido);
       await cargarEquipos();
-      console.log('📋 Partido tiene equipo local ID:', partido.id_equipo_local);
-      console.log('📋 Partido tiene equipo visitante ID:', partido.id_equipo_visitante);
-
       if (partido.id_equipo_local) {
         await cargarJugadores(partido.id_equipo_local, 'local');
       }
@@ -32,7 +28,6 @@ function EditMatchModal({ partido, onClose, onSave, isAdmin, idTorneo }) {
         await cargarJugadores(partido.id_equipo_visitante, 'visitante');
       }
       setLoading(false);
-      console.log('✅ Carga del modal completada');
     };
     inicializar();
   }, []);
@@ -55,13 +50,9 @@ function EditMatchModal({ partido, onClose, onSave, isAdmin, idTorneo }) {
         credentials: 'include'
       });
 
-      if (!responseInscripciones.ok) {
-        console.error('Error al cargar inscripciones');
-        return;
-      }
+      if (!responseInscripciones.ok) return;
 
       const inscripciones = await responseInscripciones.json();
-
       const inscripcionesTorneo = inscripciones.filter(
         ins => {
           const torneoId = ins.id_torneo || ins.torneoId;
@@ -74,7 +65,6 @@ function EditMatchModal({ partido, onClose, onSave, isAdmin, idTorneo }) {
       );
 
       if (idsEquiposInscritos.length === 0) {
-        console.warn('No hay equipos inscritos en este torneo');
         setEquipos([]);
         return;
       }
@@ -97,23 +87,19 @@ function EditMatchModal({ partido, onClose, onSave, isAdmin, idTorneo }) {
 
   const cargarJugadores = async (idEquipo, tipo) => {
     try {
-      console.log(`🔍 Cargando jugadores ${tipo} para equipo ID:`, idEquipo);
       const response = await fetch(`http://localhost:3000/equipos/jugadores/${idEquipo}`, {
         credentials: 'include'
       });
       if (response.ok) {
         const data = await response.json();
-        console.log(`✅ Jugadores ${tipo} cargados:`, data);
         if (tipo === 'local') {
           setJugadoresLocal(data);
         } else {
           setJugadoresVisitante(data);
         }
-      } else {
-        console.error(`❌ Error al cargar jugadores ${tipo}: ${response.status}`);
       }
     } catch (err) {
-      console.error(`❌ Error al cargar jugadores ${tipo}:`, err);
+      console.error(`Error al cargar jugadores ${tipo}:`, err);
     }
   };
 
@@ -125,122 +111,74 @@ function EditMatchModal({ partido, onClose, onSave, isAdmin, idTorneo }) {
     }));
   };
 
-  // Función para generar key único por jugador y equipo
   const getPlayerKey = (idJugador, equipo) => `${equipo}_${idJugador}`;
 
   const toggleGol = (idJugador, equipo) => {
-    console.log('⚽ Toggle gol (+):', { idJugador, equipo });
     const key = getPlayerKey(idJugador, equipo);
-    console.log('   Key generado:', key);
-
     setEstadisticasJugadores(prev => {
-      console.log('   Estado anterior:', prev);
       const current = prev[key] || { id_usuario: idJugador, equipo, goles: 0, amarillas: 0, rojas: 0 };
-      const newState = {
+      return {
         ...prev,
         [key]: { ...current, goles: current.goles + 1 }
       };
-      console.log('   Nuevo estado:', newState);
-      return newState;
     });
   };
 
   const decrementarGol = (idJugador, equipo) => {
-    console.log('⚽ Decrementar gol (-):', { idJugador, equipo });
     const key = getPlayerKey(idJugador, equipo);
-    console.log('   Key generado:', key);
-
     setEstadisticasJugadores(prev => {
-      console.log('   Estado anterior:', prev);
       const current = prev[key] || { id_usuario: idJugador, equipo, goles: 0, amarillas: 0, rojas: 0 };
       if (current.goles > 0) {
-        const newState = {
+        return {
           ...prev,
           [key]: { ...current, goles: current.goles - 1 }
         };
-        console.log('   Nuevo estado:', newState);
-        return newState;
       }
-      console.log('   Sin cambios (goles ya en 0)');
       return prev;
     });
   };
 
   const toggleAmarilla = (idJugador, equipo) => {
-    console.log('🟨 Toggle amarilla:', { idJugador, equipo });
     const key = getPlayerKey(idJugador, equipo);
-    console.log('   Key generado:', key);
-
     setEstadisticasJugadores(prev => {
-      console.log('   Estado anterior:', prev);
       const current = prev[key] || { id_usuario: idJugador, equipo, goles: 0, amarillas: 0, rojas: 0 };
-      const newState = {
+      return {
         ...prev,
-        [key]: {
-          ...current,
-          amarillas: current.amarillas === 0 ? 1 : 0
-        }
+        [key]: { ...current, amarillas: current.amarillas === 0 ? 1 : 0 }
       };
-      console.log('   Nuevo estado:', newState);
-      return newState;
     });
   };
 
   const toggleRoja = (idJugador, equipo) => {
-    console.log('🟥 Toggle roja:', { idJugador, equipo });
     const key = getPlayerKey(idJugador, equipo);
-    console.log('   Key generado:', key);
-
     setEstadisticasJugadores(prev => {
-      console.log('   Estado anterior:', prev);
       const current = prev[key] || { id_usuario: idJugador, equipo, goles: 0, amarillas: 0, rojas: 0 };
-      const newState = {
+      return {
         ...prev,
-        [key]: {
-          ...current,
-          rojas: current.rojas === 0 ? 1 : 0
-        }
+        [key]: { ...current, rojas: current.rojas === 0 ? 1 : 0 }
       };
-      console.log('   Nuevo estado:', newState);
-      return newState;
     });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log('💾 ============ GUARDANDO ESTADÍSTICAS ============');
-    console.log('Estado completo de estadisticasJugadores:', estadisticasJugadores);
-
     const equipoLocalSeleccionado = equipos.find(eq => eq.id_equipo === Number(formData.equipo_local));
     const equipoVisitanteSeleccionado = equipos.find(eq => eq.id_equipo === Number(formData.equipo_visitante));
-
-    console.log('Equipo Local seleccionado:', equipoLocalSeleccionado);
-    console.log('Equipo Visitante seleccionado:', equipoVisitanteSeleccionado);
 
     const goleadores = [];
     const amarillas = [];
     const rojas = [];
 
-    // Procesar estadísticas considerando el prefijo del equipo
     Object.entries(estadisticasJugadores).forEach(([key, stats]) => {
-      console.log(`Procesando jugador key: ${key}`, stats);
       const idJugador = stats.id_usuario;
-
       if (stats.goles > 0) {
-        console.log(`  - ${stats.goles} gol(es) para jugador ${idJugador} (${stats.equipo})`);
         for (let i = 0; i < stats.goles; i++) {
           goleadores.push(idJugador);
         }
       }
-      if (stats.amarillas > 0) {
-        console.log(`  - Amarilla para jugador ${idJugador} (${stats.equipo})`);
-        amarillas.push(idJugador);
-      }
-      if (stats.rojas > 0) {
-        console.log(`  - Roja para jugador ${idJugador} (${stats.equipo})`);
-        rojas.push(idJugador);
-      }
+      if (stats.amarillas > 0) amarillas.push(idJugador);
+      if (stats.rojas > 0) rojas.push(idJugador);
     });
 
     const dataToSend = {
@@ -256,20 +194,13 @@ function EditMatchModal({ partido, onClose, onSave, isAdmin, idTorneo }) {
       rojas,
     };
 
-    console.log('📤 Datos a enviar al backend:');
-    console.log('  - Goleadores:', goleadores);
-    console.log('  - Amarillas:', amarillas);
-    console.log('  - Rojas:', rojas);
-    console.log('  - Datos completos:', dataToSend);
-    console.log('================================================');
-
     onSave(partido.id_partido, dataToSend);
   };
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <h3>Editar Partido #{partido.id_partido}</h3>
+        <h3>{isAdmin ? 'Editar' : 'Ver'} Partido #{partido.id_partido}</h3>
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '2rem' }}>
@@ -365,66 +296,16 @@ function EditMatchModal({ partido, onClose, onSave, isAdmin, idTorneo }) {
                       const stats = estadisticasJugadores[key] || { goles: 0, amarillas: 0, rojas: 0 };
                       return (
                         <div key={key} className="player-stats-row">
-                          <span className="player-name">
-                            {jugador.nombre || jugador.email}
-                          </span>
+                          <span className="player-name">{jugador.nombre || jugador.email}</span>
 
-                          {/* Goles */}
                           <div className="stat-control">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                decrementarGol(jugador.id_usuario, 'local');
-                              }}
-                              disabled={!isAdmin || stats.goles === 0}
-                            >
-                              -
-                            </button>
-                            <span className={`stat-display goals ${stats.goles > 0 ? 'active' : ''}`}>
-                              ⚽ {stats.goles}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                toggleGol(jugador.id_usuario, 'local');
-                              }}
-                              disabled={!isAdmin}
-                            >
-                              +
-                            </button>
+                            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); decrementarGol(jugador.id_usuario, 'local'); }} disabled={!isAdmin || stats.goles === 0}>-</button>
+                            <span className={`stat-display goals ${stats.goles > 0 ? 'active' : ''}`}>⚽ {stats.goles}</span>
+                            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleGol(jugador.id_usuario, 'local'); }} disabled={!isAdmin}>+</button>
                           </div>
 
-                          {/* Amarilla */}
-                          <button
-                            type="button"
-                            className={`stat-button yellow ${stats.amarillas > 0 ? 'active' : ''}`}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              toggleAmarilla(jugador.id_usuario, 'local');
-                            }}
-                            disabled={!isAdmin}
-                          >
-                            🟨
-                          </button>
-
-                          {/* Roja */}
-                          <button
-                            type="button"
-                            className={`stat-button red ${stats.rojas > 0 ? 'active' : ''}`}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              toggleRoja(jugador.id_usuario, 'local');
-                            }}
-                            disabled={!isAdmin}
-                          >
-                            🟥
-                          </button>
+                          <button type="button" className={`stat-button yellow ${stats.amarillas > 0 ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleAmarilla(jugador.id_usuario, 'local'); }} disabled={!isAdmin}>🟨</button>
+                          <button type="button" className={`stat-button red ${stats.rojas > 0 ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleRoja(jugador.id_usuario, 'local'); }} disabled={!isAdmin}>🟥</button>
                         </div>
                       );
                     })}
@@ -442,66 +323,16 @@ function EditMatchModal({ partido, onClose, onSave, isAdmin, idTorneo }) {
                       const stats = estadisticasJugadores[key] || { goles: 0, amarillas: 0, rojas: 0 };
                       return (
                         <div key={key} className="player-stats-row">
-                          <span className="player-name">
-                            {jugador.nombre || jugador.email}
-                          </span>
+                          <span className="player-name">{jugador.nombre || jugador.email}</span>
 
-                          {/* Goles */}
                           <div className="stat-control">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                decrementarGol(jugador.id_usuario, 'visitante');
-                              }}
-                              disabled={!isAdmin || stats.goles === 0}
-                            >
-                              -
-                            </button>
-                            <span className={`stat-display goals ${stats.goles > 0 ? 'active' : ''}`}>
-                              ⚽ {stats.goles}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                toggleGol(jugador.id_usuario, 'visitante');
-                              }}
-                              disabled={!isAdmin}
-                            >
-                              +
-                            </button>
+                            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); decrementarGol(jugador.id_usuario, 'visitante'); }} disabled={!isAdmin || stats.goles === 0}>-</button>
+                            <span className={`stat-display goals ${stats.goles > 0 ? 'active' : ''}`}>⚽ {stats.goles}</span>
+                            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleGol(jugador.id_usuario, 'visitante'); }} disabled={!isAdmin}>+</button>
                           </div>
 
-                          {/* Amarilla */}
-                          <button
-                            type="button"
-                            className={`stat-button yellow ${stats.amarillas > 0 ? 'active' : ''}`}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              toggleAmarilla(jugador.id_usuario, 'visitante');
-                            }}
-                            disabled={!isAdmin}
-                          >
-                            🟨
-                          </button>
-
-                          {/* Roja */}
-                          <button
-                            type="button"
-                            className={`stat-button red ${stats.rojas > 0 ? 'active' : ''}`}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              toggleRoja(jugador.id_usuario, 'visitante');
-                            }}
-                            disabled={!isAdmin}
-                          >
-                            🟥
-                          </button>
+                          <button type="button" className={`stat-button yellow ${stats.amarillas > 0 ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleAmarilla(jugador.id_usuario, 'visitante'); }} disabled={!isAdmin}>🟨</button>
+                          <button type="button" className={`stat-button red ${stats.rojas > 0 ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleRoja(jugador.id_usuario, 'visitante'); }} disabled={!isAdmin}>🟥</button>
                         </div>
                       );
                     })}
@@ -511,14 +342,8 @@ function EditMatchModal({ partido, onClose, onSave, isAdmin, idTorneo }) {
             )}
 
             <div className="modal-actions">
-              <button type="button" onClick={onClose} className="btn-cancelar">
-                Cancelar
-              </button>
-              {isAdmin && (
-                <button type="submit" className="btn-guardar">
-                  Guardar Cambios
-                </button>
-              )}
+              <button type="button" onClick={onClose} className="btn-cancelar">Cerrar</button>
+              {isAdmin && <button type="submit" className="btn-guardar">Guardar Cambios</button>}
             </div>
           </form>
         )}
@@ -528,12 +353,18 @@ function EditMatchModal({ partido, onClose, onSave, isAdmin, idTorneo }) {
 }
 
 function MatchBox({ partido, isAdmin, onEditClick }) {
+  const handleClick = () => {
+    // Cualquiera puede ver, solo admin puede editar
+    onEditClick(partido);
+  };
+
   return (
     <div
       key={partido.id_partido}
       className="partido-item clickable bracket-match"
-      onClick={() => onEditClick(partido)}
-      title="Click para editar"
+      onClick={handleClick}
+      title={isAdmin ? "Click para editar" : "Click para ver detalles"}
+      style={{ cursor: 'pointer' }}
     >
       <div className="partido-info">
         <span className="partido-fecha-bracket">{partido.fecha_formato?.split(' ')[0] || '-'}</span>
@@ -550,7 +381,7 @@ function MatchBox({ partido, isAdmin, onEditClick }) {
   );
 }
 
-export default function Fixture({ isAdmin }) {
+export default function Fixture({ usuario }) {
   const [partidos, setPartidos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -559,6 +390,9 @@ export default function Fixture({ isAdmin }) {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedPartido, setSelectedPartido] = useState(null);
   const [bracketSize, setBracketSize] = useState(0);
+
+  // Helper de roles
+  const isAdmin = usuario?.rol === 'administrador';
 
   useEffect(() => { cargarPartidos(); }, [idTorneo]);
 
@@ -598,8 +432,6 @@ export default function Fixture({ isAdmin }) {
 
   const handleSaveChanges = async (idPartido, updatedData) => {
     try {
-      console.log('💾 Enviando actualización del partido:', updatedData);
-
       const response = await fetch(`http://localhost:3000/partidos/${idPartido}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -612,92 +444,57 @@ export default function Fixture({ isAdmin }) {
         throw new Error(errorData.error || `Error ${response.status}: No se pudo guardar`);
       }
 
-      console.log('✅ Partido actualizado correctamente');
-
-      // ✅ Preparar estadísticas de jugadores con el formato correcto
       const jugadoresStatsMap = {};
 
-      console.log('📊 Procesando estadísticas para enviar al backend:');
-      console.log('  Goleadores a procesar:', updatedData.goleadores);
-      console.log('  Amarillas a procesar:', updatedData.amarillas);
-      console.log('  Rojas a procesar:', updatedData.rojas);
-
-      // Procesar goles
       updatedData.goleadores.forEach((id_jugador) => {
-        console.log(`  Agregando gol para jugador ${id_jugador}`);
         if (!jugadoresStatsMap[id_jugador]) {
           jugadoresStatsMap[id_jugador] = { id_jugador, goles: 0, amarillas: 0, rojas: 0 };
         }
         jugadoresStatsMap[id_jugador].goles += 1;
       });
 
-      // Procesar amarillas
       updatedData.amarillas.forEach((id_jugador) => {
-        console.log(`  Agregando amarilla para jugador ${id_jugador}`);
         if (!jugadoresStatsMap[id_jugador]) {
           jugadoresStatsMap[id_jugador] = { id_jugador, goles: 0, amarillas: 0, rojas: 0 };
         }
         jugadoresStatsMap[id_jugador].amarillas = 1;
       });
 
-      // Procesar rojas
       updatedData.rojas.forEach((id_jugador) => {
-        console.log(`  Agregando roja para jugador ${id_jugador}`);
         if (!jugadoresStatsMap[id_jugador]) {
           jugadoresStatsMap[id_jugador] = { id_jugador, goles: 0, amarillas: 0, rojas: 0 };
         }
         jugadoresStatsMap[id_jugador].rojas = 1;
       });
 
-      // ✅ Convertir el mapa a array
       const jugadoresStats = Object.values(jugadoresStatsMap);
-
-      console.log('📤 Estadísticas finales a enviar:', jugadoresStats);
-
-      // ✅ Verificar que cada jugador tenga id_jugador válido
-      const jugadoresValidos = jugadoresStats.filter(j => {
-        if (!j.id_jugador) {
-          console.error(`❌ Jugador sin ID:`, j);
-          return false;
-        }
-        return true;
-      });
+      const jugadoresValidos = jugadoresStats.filter(j => j.id_jugador);
 
       if (jugadoresValidos.length > 0) {
-        console.log('📡 Enviando estadísticas de jugadores al backend...');
-        console.log('🔍 Datos a enviar:', {
-          id_partido: idPartido,
-          jugadoresStats: jugadoresValidos
-        });
-
         const statsResponse = await fetch(`http://localhost:3000/api/estadisticas/jugadores`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
           body: JSON.stringify({
             id_partido: idPartido,
-            jugadoresStats: jugadoresValidos  // ✅ USAR LA VARIABLE CORRECTA
+            jugadoresStats: jugadoresValidos
           }),
         });
 
         if (statsResponse.ok) {
-          console.log('✅ Estadísticas guardadas correctamente');
           alert('✅ Partido y estadísticas guardados correctamente');
         } else {
-          const errorData = await statsResponse.json().catch(() => ({}));
-          console.error('❌ Error al guardar estadísticas:', errorData);
           alert('⚠️ Partido guardado pero hubo un error al guardar las estadísticas');
         }
       } else {
-        console.log('ℹ️ No hay estadísticas válidas para guardar');
-        alert('✅ Partido guardado correctamente (sin estadísticas de jugadores)');
+        alert('✅ Partido guardado correctamente');
       }
 
       handleCloseEditModal();
       cargarPartidos();
 
     } catch (err) {
-      console.error("❌ Error al guardar:", err);
+      console.error("Error al guardar:", err);
       alert(`Error al guardar: ${err.message}`);
     }
   };

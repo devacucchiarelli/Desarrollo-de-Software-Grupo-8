@@ -3,9 +3,10 @@ import { useState, useEffect } from "react";
 import "../styles/css/equipo.css";
 import { useNavigate } from "react-router-dom";
 
-export default function Page() {
+export default function Page({ usuario: usuarioProp }) {
+  console.log('🟢 Usuario recibido en Equipo:', usuarioProp);
   const navigate = useNavigate();
-  const [usuario, setUsuario] = useState(null);
+  const [usuario, setUsuario] = useState(usuarioProp || null);
   const [nombreEquipo, setNombreEquipo] = useState("");
   const [miEquipo, setMiEquipo] = useState(null);
   const [mensaje, setMensaje] = useState("");
@@ -17,8 +18,14 @@ export default function Page() {
   const [equipoSeleccionado, setEquipoSeleccionado] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Obtener usuario autenticado
+  // Obtener usuario autenticado si no viene por props
   useEffect(() => {
+    if (usuarioProp) {
+      setUsuario(usuarioProp);
+      setLoading(false);
+      return;
+    }
+
     async function fetchUsuario() {
       try {
         const res = await fetch("http://localhost:3000/usuarios/me", {
@@ -37,12 +44,12 @@ export default function Page() {
       }
     }
     fetchUsuario();
-  }, [navigate]);
+  }, [navigate, usuarioProp]);
 
   // Traer todos los jugadores (para capitán y admin)
   useEffect(() => {
     if (!usuario) return;
-    if (usuario.rol === 'jugador') return; // Los jugadores no necesitan ver todos
+    if (usuario.rol === 'jugador') return;
 
     async function fetchJugadores() {
       try {
@@ -51,7 +58,6 @@ export default function Page() {
         });
         if (!res.ok) throw new Error("Error al cargar jugadores");
         const data = await res.json();
-        // Filtrar solo jugadores y capitanes (no admins)
         const jugadoresFiltrados = data.filter(u => u.rol !== 'administrador');
         setJugadoresDisponibles(jugadoresFiltrados);
       } catch (error) {
@@ -65,34 +71,46 @@ export default function Page() {
   useEffect(() => {
     if (!usuario) return;
 
+    console.log('Usuario en fetchEquipos:', usuario); // DEBUG
+
     async function fetchEquipos() {
       try {
         if (usuario.rol === 'administrador') {
-          // Admin: traer todos los equipos
           const res = await fetch("http://localhost:3000/equipos", {
             credentials: "include",
           });
           const data = await res.json();
           setTodosLosEquipos(data);
         } else if (usuario.rol === 'capitan') {
-          // Capitán: traer su equipo
-          const res = await fetch(`http://localhost:3000/equipos/mi-equipo/${usuario.id_usuario}`, {
+          // Usar el campo correcto del usuario
+          const userId = usuario.id_usuario || usuario.id;
+          console.log('ID del usuario capitán:', userId); // DEBUG
+          
+          if (!userId) {
+            console.error('No se encontró ID del usuario');
+            return;
+          }
+
+          const res = await fetch(`http://localhost:3000/equipos/mi-equipo/${userId}`, {
             credentials: "include",
           });
-          const data = await res.json();
-          setMiEquipo(data);
+          
+          if (res.ok) {
+            const data = await res.json();
+            setMiEquipo(data);
 
-          if (data && data.id_equipo) {
-            await cargarJugadoresEquipo(data.id_equipo);
+            if (data && data.id_equipo) {
+              await cargarJugadoresEquipo(data.id_equipo);
+            }
+          } else if (res.status === 404) {
+            setMiEquipo(null);
           }
         } else if (usuario.rol === 'jugador') {
-          // Jugador: buscar su equipo
           const res = await fetch("http://localhost:3000/equipos", {
             credentials: "include",
           });
           const equipos = await res.json();
           
-          // Buscar en qué equipo está el jugador
           for (const equipo of equipos) {
             const resJugadores = await fetch(
               `http://localhost:3000/equipos/jugadores/${equipo.id_equipo}`,
@@ -131,10 +149,18 @@ export default function Page() {
     e.preventDefault();
     if (!usuario) return;
 
+    // Obtener el ID correcto
+    const userId = usuario.id_usuario || usuario.id;
+
     const payload = { 
       nombre_equipo: nombreEquipo, 
-      id_capitan: usuario.rol === 'administrador' ? null : usuario.id_usuario 
+      id_capitan: usuario.rol === 'administrador' ? null : userId 
     };
+
+    console.log('=== CREAR EQUIPO ===');
+    console.log('Usuario completo:', usuario);
+    console.log('User ID extraído:', userId);
+    console.log('Payload a enviar:', payload);
 
     try {
       const res = await fetch("http://localhost:3000/equipos", {
@@ -144,21 +170,35 @@ export default function Page() {
         credentials: "include",
       });
 
-      if (!res.ok) throw new Error("Error en la petición");
+      console.log('Status de respuesta:', res.status);
+      
+      const responseData = await res.json();
+      console.log('Respuesta del servidor:', responseData);
 
-      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(responseData.error || "Error al crear equipo");
+      }
+
+      const data = responseData;
       
       if (usuario.rol === 'administrador') {
         setTodosLosEquipos(prev => [...prev, data]);
         setMensaje(`Equipo creado: ${data.nombre_equipo}`);
-      } else {
+      } else if (usuario.rol === 'capitan') {
         setMiEquipo(data);
-        setMensaje(`Equipo creado: ${data.nombre_equipo}`);
+        setMensaje(`¡Equipo "${data.nombre_equipo}" creado exitosamente!`);
+        console.log('Equipo creado para capitán:', data);
+        
+        // Cargar el capitán como primer jugador
+        if (data.id_equipo) {
+          console.log('Cargando jugadores del equipo:', data.id_equipo);
+          await cargarJugadoresEquipo(data.id_equipo);
+        }
       }
       
       setNombreEquipo("");
     } catch (err) {
-      console.error(err);
+      console.error('ERROR AL CREAR EQUIPO:', err);
       setMensaje(err.message);
     }
   };
@@ -177,7 +217,10 @@ export default function Page() {
       ? equipoSeleccionado?.id_equipo 
       : miEquipo?.id_equipo;
 
-    if (!equipoId || jugadoresSeleccionados.length === 0) return;
+    if (!equipoId || jugadoresSeleccionados.length === 0) {
+      setMensaje("Selecciona al menos un jugador");
+      return;
+    }
 
     const payload = {
       id_equipo: equipoId,
@@ -198,6 +241,9 @@ export default function Page() {
       setShowModal(false);
       await cargarJugadoresEquipo(equipoId);
       setMensaje("Jugadores agregados exitosamente");
+      
+      // Limpiar mensaje después de 3 segundos
+      setTimeout(() => setMensaje(""), 3000);
     } catch (err) {
       console.error(err);
       setMensaje("Error al agregar jugadores");
@@ -211,6 +257,14 @@ export default function Page() {
 
     if (!equipoId) return;
 
+    // Evitar que el capitán se elimine a sí mismo
+    if (usuario.rol === 'capitan' && parseInt(idJugador) === parseInt(usuario.id_usuario)) {
+      setMensaje("No puedes eliminarte a ti mismo del equipo");
+      return;
+    }
+
+    if (!window.confirm("¿Estás seguro de eliminar este jugador?")) return;
+
     try {
       const res = await fetch(
         `http://localhost:3000/equipos/eliminar-jugador/${equipoId}/${idJugador}`,
@@ -223,6 +277,7 @@ export default function Page() {
         prev.filter((jugador) => jugador.id_jugador !== idJugador)
       );
       setMensaje("Jugador eliminado exitosamente");
+      setTimeout(() => setMensaje(""), 3000);
     } catch (err) {
       console.error(err);
       setMensaje("Error al eliminar jugador");
@@ -253,7 +308,6 @@ export default function Page() {
 
           <h2 className="equipo-title">Gestión de Equipos (Admin)</h2>
 
-          {/* Formulario crear equipo */}
           <form className="crear-equipo-form" onSubmit={handleCrearEquipo}>
             <input
               className="crear-equipo-input"
@@ -270,27 +324,29 @@ export default function Page() {
 
           {mensaje && <p className="mensaje">{mensaje}</p>}
 
-          {/* Lista de equipos */}
           <div className="equipos-section">
-            <h3 className="jugadores-title">Todos los equipos</h3>
-            <ul className="jugadores-list">
-              {todosLosEquipos.map((equipo) => (
-                <li key={equipo.id_equipo} className="jugador-item">
-                  <div className="jugador-info">
-                    <strong>{equipo.nombre_equipo}</strong>
-                  </div>
-                  <button
-                    className="agregar-btn"
-                    onClick={() => handleVerEquipo(equipo)}
-                  >
-                    Ver/Editar
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <h3 className="jugadores-title">Todos los equipos ({todosLosEquipos.length})</h3>
+            {todosLosEquipos.length === 0 ? (
+              <p>No hay equipos creados todavía</p>
+            ) : (
+              <ul className="jugadores-list">
+                {todosLosEquipos.map((equipo) => (
+                  <li key={equipo.id_equipo} className="jugador-item">
+                    <div className="jugador-info">
+                      <strong>{equipo.nombre_equipo}</strong>
+                    </div>
+                    <button
+                      className="agregar-btn"
+                      onClick={() => handleVerEquipo(equipo)}
+                    >
+                      Ver/Editar
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
-          {/* Detalles del equipo seleccionado */}
           {equipoSeleccionado && (
             <div className="jugadores-section">
               <h3 className="jugadores-title">
@@ -318,7 +374,6 @@ export default function Page() {
             </div>
           )}
 
-          {/* Modal agregar jugadores */}
           {showModal && (
             <div className="modal-backdrop" onClick={() => setShowModal(false)}>
               <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -349,6 +404,13 @@ export default function Page() {
                 <button className="modal-agregar-btn" onClick={handleAgregarJugadores}>
                   Agregar seleccionados
                 </button>
+                <button 
+                  className="modal-cerrar-btn" 
+                  onClick={() => setShowModal(false)}
+                  style={{ marginTop: '10px', background: '#666' }}
+                >
+                  Cerrar
+                </button>
               </div>
             </div>
           )}
@@ -359,6 +421,7 @@ export default function Page() {
 
   // ====== VISTA PARA CAPITÁN ======
   if (usuario.rol === 'capitan') {
+    // Capitán CON equipo
     if (miEquipo) {
       return (
         <div className="equipo-container">
@@ -369,39 +432,44 @@ export default function Page() {
 
             <h2 className="equipo-title">Mi equipo: {miEquipo.nombre_equipo}</h2>
 
+            {mensaje && <p className="mensaje">{mensaje}</p>}
+
             <div className="jugadores-section">
-              <h3 className="jugadores-title">Jugadores del equipo</h3>
-              <ul className="jugadores-list">
-                {jugadoresDelEquipo.map((jugador) => (
-                  <li key={jugador.id_jugador} className="jugador-item">
-                    <div className="jugador-info">
-                      <strong>{jugador.nombre}</strong> • {jugador.email}
-                    </div>
-                    {parseInt(jugador.id_jugador) !== parseInt(usuario.id_usuario) ? (
-                      <button
-                        className="eliminar-btn"
-                        onClick={() => handleEliminarJugador(jugador.id_jugador)}
-                      >
-                        Eliminar
-                      </button>
-                    ) : (
-                      <span className="capitan-text">Capitán</span>
-                    )}
-                  </li>
-                ))}
-              </ul>
+              <h3 className="jugadores-title">Jugadores del equipo ({jugadoresDelEquipo.length})</h3>
+              {jugadoresDelEquipo.length === 0 ? (
+                <p>No hay jugadores en el equipo. Agrega jugadores para comenzar.</p>
+              ) : (
+                <ul className="jugadores-list">
+                  {jugadoresDelEquipo.map((jugador) => (
+                    <li key={jugador.id_jugador} className="jugador-item">
+                      <div className="jugador-info">
+                        <strong>{jugador.nombre}</strong> • {jugador.email}
+                        {parseInt(jugador.id_jugador) === parseInt(usuario.id_usuario) && (
+                          <span className="capitan-text"> • Capitán (tú)</span>
+                        )}
+                      </div>
+                      {parseInt(jugador.id_jugador) !== parseInt(usuario.id_usuario) && (
+                        <button
+                          className="eliminar-btn"
+                          onClick={() => handleEliminarJugador(jugador.id_jugador)}
+                        >
+                          Eliminar
+                        </button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
 
               <button className="agregar-btn" onClick={() => setShowModal(true)}>
                 + Agregar jugador
               </button>
             </div>
 
-            {mensaje && <p className="mensaje">{mensaje}</p>}
-
             {showModal && (
               <div className="modal-backdrop" onClick={() => setShowModal(false)}>
                 <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                  <h3 className="modal-title">Seleccionar jugadores</h3>
+                  <h3 className="modal-title">Seleccionar jugadores para agregar</h3>
                   <ul className="modal-list">
                     {jugadoresDisponibles
                       .filter(j => !jugadoresDelEquipo.some(jd => 
@@ -428,6 +496,13 @@ export default function Page() {
                   <button className="modal-agregar-btn" onClick={handleAgregarJugadores}>
                     Agregar seleccionados
                   </button>
+                  <button 
+                    className="modal-cerrar-btn" 
+                    onClick={() => setShowModal(false)}
+                    style={{ marginTop: '10px', background: '#666' }}
+                  >
+                    Cerrar
+                  </button>
                 </div>
               </div>
             )}
@@ -436,24 +511,35 @@ export default function Page() {
       );
     }
 
-    // Capitán sin equipo: mostrar formulario
+    // Capitán SIN equipo: mostrar formulario
     return (
       <div className="equipo-container">
-        <form className="crear-equipo-form" onSubmit={handleCrearEquipo}>
-          <h2 className="equipo-title">Crear nuevo equipo</h2>
-          <input
-            className="crear-equipo-input"
-            type="text"
-            placeholder="Nombre del equipo"
-            value={nombreEquipo}
-            onChange={(e) => setNombreEquipo(e.target.value)}
-            required
-          />
-          <button className="crear-equipo-btn" type="submit">
-            Crear equipo
+        <div className="equipo-card">
+          <button className="volver-btn" onClick={() => navigate("/")}>
+            ← Volver
           </button>
+
+          <h2 className="equipo-title">Crear tu equipo</h2>
+          <p style={{ marginBottom: '20px', color: '#666' }}>
+            Como capitán, puedes crear un equipo y agregar jugadores
+          </p>
+
+          <form className="crear-equipo-form" onSubmit={handleCrearEquipo}>
+            <input
+              className="crear-equipo-input"
+              type="text"
+              placeholder="Nombre del equipo"
+              value={nombreEquipo}
+              onChange={(e) => setNombreEquipo(e.target.value)}
+              required
+            />
+            <button className="crear-equipo-btn" type="submit">
+              Crear mi equipo
+            </button>
+          </form>
+
           {mensaje && <p className="mensaje">{mensaje}</p>}
-        </form>
+        </div>
       </div>
     );
   }
@@ -480,6 +566,9 @@ export default function Page() {
                       {parseInt(jugador.id_jugador) === parseInt(miEquipo.id_capitan) && (
                         <span className="capitan-text"> • Capitán</span>
                       )}
+                      {parseInt(jugador.id_jugador) === parseInt(usuario.id_usuario) && (
+                        <span className="capitan-text"> • (Tú)</span>
+                      )}
                     </div>
                   </li>
                 ))}
@@ -496,7 +585,8 @@ export default function Page() {
           <button className="volver-btn" onClick={() => navigate("/")}>
             ← Volver
           </button>
-          <p className="mensaje">No estás asignado a ningún equipo todavía.</p>
+          <h2 className="equipo-title">Sin equipo</h2>
+          <p className="mensaje">No estás asignado a ningún equipo todavía. Espera a que un capitán te agregue a su equipo.</p>
         </div>
       </div>
     );
