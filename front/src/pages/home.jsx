@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import '../styles/home.css';
 import { useNavigate } from "react-router-dom";
-import EstadisticasTorneo from "../components/EstadisticasTorneo";
+import EstadisticasTorneo from "../components/EstadisticasTorneo.jsx";
 import "../styles/css/estadisticas.css";
 import "../styles/css/estadisticas-home.css"; // opcional
 

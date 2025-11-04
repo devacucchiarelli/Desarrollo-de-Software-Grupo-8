@@ -1,15 +1,26 @@
-const { Router } = require('express');
-const {
-  obtenerEstadisticasController,
-  actualizarEstadisticasController,
-} = require('../controllers/estadisticasController');
 
-const router = Router();
+const express = require('express');
+const { EstadisticasController } = require('../controllers/estadisticasController.js');
 
-// GET  /estadisticas/:id_torneo  -> devuelve totales calculados
-router.get('/:id_torneo', obtenerEstadisticasController);
+const router = express.Router();
 
-// PUT  /estadisticas/:id_torneo  -> recalcula (y persiste si quieres)
-router.put('/:id_torneo', actualizarEstadisticasController);
+// ✅ NUEVAS RUTAS
+// Obtener lista de torneos con estadísticas
+router.get('/torneos', EstadisticasController.obtenerTorneosConEstadisticas);
+
+// Obtener estadísticas completas de un torneo
+router.get('/torneo/:id_torneo', EstadisticasController.obtenerEstadisticasTorneo);
+
+// Registrar estadísticas generales del partido
+router.post('/partido', EstadisticasController.registrarEstadisticaPartido);
+
+// Registrar estadísticas individuales de jugadores
+router.post('/jugadores', EstadisticasController.registrarEstadisticasJugadores);
+
+// Obtener estadísticas de un partido específico
+router.get('/partido/:id_partido', EstadisticasController.obtenerEstadisticasPartido);
+
+
+router.get('/torneo/:id_torneo/resumen', EstadisticasController.obtenerResumenEstadisticasTorneo);
 
 module.exports = router;
