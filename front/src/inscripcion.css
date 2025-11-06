@@ -1,0 +1,92 @@
+
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .6);
+  display: grid;
+  place-items: center;
+  z-index: 9999; /* sobre header */
+  padding: 16px;
+}
+
+/* Tarjeta del modal */
+.modal-card {
+  width: 100%;
+  max-width: 520px;
+  background: #172233;
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.5);
+  overflow: hidden;
+}
+
+/* Header del modal */
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  background: #101827;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.modal-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.modal-close {
+  background: transparent;
+  color: #b8c1cc;
+  border: none;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Body */
+.modal-body {
+  padding: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.form-label {
+  font-size: 13px;
+  opacity: .9;
+  display: grid;
+  gap: 6px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  outline: none;
+  background: #0f1720;
+  color: #e7e7e7;
+  border: 1px solid #2a3645;
+}
+
+.form-msg {
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+/* Footer */
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+/* Si ya tienes .btn y .btn-create en App.css, se reutilizan;
+   agrega este gris secundario si quieres: */
+.btn-secondary {
+  background: #475569;
+  color: #fff;
+}

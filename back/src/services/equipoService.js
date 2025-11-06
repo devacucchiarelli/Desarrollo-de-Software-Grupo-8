@@ -1,3 +1,4 @@
+
 const equipoModel = require('../models/equipoModel.js');
 
 async function crearEquipoService(nombre_equipo, id_capitan) {
@@ -35,6 +36,7 @@ async function getJugadoresEquipoService  (idEquipo)  {
 async function eliminarJugadorService  (idEquipo, idJugador)  {
   return await equipoModel.eliminarJugador(idEquipo, idJugador);
 };
+
 
 module.exports = {
   crearEquipoService,
