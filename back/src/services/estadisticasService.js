@@ -1,5 +1,3 @@
-
-
 const pool = require('../models/db');
 
 const EstadisticasService = {
@@ -28,7 +26,7 @@ const EstadisticasService = {
   // Registrar estadísticas individuales de jugadores
   async registrarEstadisticasJugadores(id_partido, jugadoresStats) {
     const results = [];
-
+    
     // ✅ Filtrar jugadores sin ID válido
     const jugadoresValidos = jugadoresStats.filter(j => {
       if (!j.id_jugador) {
@@ -55,13 +53,13 @@ const EstadisticasService = {
         RETURNING *;
       `;
       const values = [
-        id_partido,
-        j.id_jugador,
-        j.goles || 0,
-        j.amarillas || 0,
+        id_partido, 
+        j.id_jugador, 
+        j.goles || 0, 
+        j.amarillas || 0, 
         j.rojas || 0
       ];
-
+      
       try {
         const res = await pool.query(query, values);
         results.push(res.rows[0]);
@@ -70,7 +68,7 @@ const EstadisticasService = {
         throw error;
       }
     }
-
+    
     return results;
   },
 
@@ -112,11 +110,11 @@ const EstadisticasService = {
       ORDER BY p.fecha_partido DESC
       LIMIT 10
     `;
-
+    
     const result = await pool.query(query);
     return result.rows;
   },
-  async obtenerEstadisticasTorneo(id_torneo) {
+   async obtenerEstadisticasTorneo(id_torneo) {
     // Obtener información del torneo
     const torneoQuery = `
       SELECT 
@@ -130,7 +128,7 @@ const EstadisticasService = {
       WHERE id_torneo = $1
     `;
     const torneoResult = await pool.query(torneoQuery, [id_torneo]);
-
+    
     if (torneoResult.rows.length === 0) {
       throw new Error('Torneo no encontrado');
     }
@@ -234,11 +232,11 @@ const EstadisticasService = {
   },
 
   // ✅ NUEVO: Obtener lista de torneos con partidos jugados
-  async obtenerTorneosConEstadisticas() {
-    try {
-      console.log('📊 Obteniendo torneos con estadísticas...');
-
-      const query = `
+async obtenerTorneosConEstadisticas() {
+  try {
+    console.log('📊 Obteniendo torneos con estadísticas...');
+    
+    const query = `
       SELECT 
         t.id_torneo,
         t.nombre_torneo,
@@ -253,145 +251,16 @@ const EstadisticasService = {
       GROUP BY t.id_torneo, t.nombre_torneo, t.tipo_torneo, t.formato, t.fecha_inicio
       ORDER BY t.fecha_inicio DESC
     `;
-
-      const result = await pool.query(query);
-      console.log('✅ Torneos encontrados:', result.rows.length);
-      return result.rows;
-    } catch (error) {
-      console.error('❌ Error en obtenerTorneosConEstadisticas:', error);
-      throw error;
-    }
-  },
-  async obtenerResumenEstadisticasTorneo(id_torneo) {
-    try {
-      // Verificar que el torneo existe
-      const torneoQuery = `
-      SELECT id_torneo, nombre_torneo, tipo_torneo, formato
-      FROM torneos
-      WHERE id_torneo = $1
-    `;
-      const torneoResult = await pool.query(torneoQuery, [id_torneo]);
-
-      if (torneoResult.rows.length === 0) {
-        throw new Error('Torneo no encontrado');
-      }
-
-      // Goleador del torneo
-      const goleadorQuery = `
-      SELECT 
-        u.id_usuario as id_jugador,
-        u.nombre,
-        u.email,
-        SUM(ejp.goles) as total_goles
-      FROM estadisticas_jugador_partido ejp
-      INNER JOIN usuarios u ON ejp.id_jugador = u.id_usuario
-      INNER JOIN partidos p ON ejp.id_partido = p.id_partido
-      WHERE p.id_torneo = $1
-      GROUP BY u.id_usuario, u.nombre, u.email
-      HAVING SUM(ejp.goles) > 0
-      ORDER BY total_goles DESC
-      LIMIT 1
-    `;
-      const goleadorResult = await pool.query(goleadorQuery, [id_torneo]);
-
-      // Equipos con más amarillas
-      const amarillasQuery = `
-      SELECT 
-        equipo,
-        SUM(amarillas) as total_amarillas
-      FROM (
-        SELECT p.equipo_local as equipo, COALESCE(ep.amarillas_local, 0) as amarillas
-        FROM partidos p
-        LEFT JOIN estadisticas_partido ep ON p.id_partido = ep.id_partido
-        WHERE p.id_torneo = $1 AND p.resultado_local IS NOT NULL
-        
-        UNION ALL
-        
-        SELECT p.equipo_visitante as equipo, COALESCE(ep.amarillas_visitante, 0) as amarillas
-        FROM partidos p
-        LEFT JOIN estadisticas_partido ep ON p.id_partido = ep.id_partido
-        WHERE p.id_torneo = $1 AND p.resultado_visitante IS NOT NULL
-      ) subquery
-      GROUP BY equipo
-      HAVING SUM(amarillas) > 0
-      ORDER BY total_amarillas DESC
-      LIMIT 1
-    `;
-      const amarillasResult = await pool.query(amarillasQuery, [id_torneo]);
-
-      // Equipos con más rojas
-      const rojasQuery = `
-      SELECT 
-        equipo,
-        SUM(rojas) as total_rojas
-      FROM (
-        SELECT p.equipo_local as equipo, COALESCE(ep.rojas_local, 0) as rojas
-        FROM partidos p
-        LEFT JOIN estadisticas_partido ep ON p.id_partido = ep.id_partido
-        WHERE p.id_torneo = $1 AND p.resultado_local IS NOT NULL
-        
-        UNION ALL
-        
-        SELECT p.equipo_visitante as equipo, COALESCE(ep.rojas_visitante, 0) as rojas
-        FROM partidos p
-        LEFT JOIN estadisticas_partido ep ON p.id_partido = ep.id_partido
-        WHERE p.id_torneo = $1 AND p.resultado_visitante IS NOT NULL
-      ) subquery
-      GROUP BY equipo
-      HAVING SUM(rojas) > 0
-      ORDER BY total_rojas DESC
-      LIMIT 1
-    `;
-      const rojasResult = await pool.query(rojasQuery, [id_torneo]);
-
-      // Partido con más goles
-      const partidoMasGolesQuery = `
-      SELECT 
-        p.id_partido,
-        p.equipo_local,
-        p.equipo_visitante,
-        p.resultado_local,
-        p.resultado_visitante,
-        p.fecha_partido,
-        (p.resultado_local + p.resultado_visitante) as total_goles
-      FROM partidos p
-      WHERE p.id_torneo = $1
-        AND p.resultado_local IS NOT NULL
-        AND p.resultado_visitante IS NOT NULL
-      ORDER BY total_goles DESC
-      LIMIT 1
-    `;
-      const partidoMasGolesResult = await pool.query(partidoMasGolesQuery, [id_torneo]);
-
-      // Estadísticas generales
-      const statsGeneralesQuery = `
-      SELECT 
-        COUNT(DISTINCT p.id_partido) as total_partidos,
-        SUM(p.resultado_local + p.resultado_visitante) as total_goles,
-        ROUND(AVG(p.resultado_local + p.resultado_visitante), 2) as promedio_goles_partido,
-        SUM(COALESCE(ep.amarillas_local, 0) + COALESCE(ep.amarillas_visitante, 0)) as total_amarillas,
-        SUM(COALESCE(ep.rojas_local, 0) + COALESCE(ep.rojas_visitante, 0)) as total_rojas
-      FROM partidos p
-      LEFT JOIN estadisticas_partido ep ON p.id_partido = ep.id_partido
-      WHERE p.id_torneo = $1
-        AND p.resultado_local IS NOT NULL
-        AND p.resultado_visitante IS NOT NULL
-    `;
-      const statsGeneralesResult = await pool.query(statsGeneralesQuery, [id_torneo]);
-
-      return {
-        torneo: torneoResult.rows[0],
-        goleador: goleadorResult.rows[0] || null,
-        equipoMasAmarillas: amarillasResult.rows[0] || null,
-        equipoMasRojas: rojasResult.rows[0] || null,
-        partidoMasGoles: partidoMasGolesResult.rows[0] || null,
-        estadisticasGenerales: statsGeneralesResult.rows[0]
-      };
-    } catch (error) {
-      console.error('❌ Error en obtenerResumenEstadisticasTorneo:', error);
-      throw error;
-    }
+    
+    const result = await pool.query(query);
+    console.log('✅ Torneos encontrados:', result.rows.length);
+    return result.rows;
+  } catch (error) {
+    console.error('❌ Error en obtenerTorneosConEstadisticas:', error);
+    throw error;
   }
+},
+
 };
 
 module.exports = { EstadisticasService };
