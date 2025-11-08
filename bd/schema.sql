@@ -137,3 +137,19 @@ CREATE TABLE estadisticas_jugador_partido (
         REFERENCES usuarios(id_usuario)
         ON DELETE CASCADE
 );
+
+-- Tabla de posiciones para torneos en formato liga
+CREATE TABLE tabla_posiciones (
+    id SERIAL PRIMARY KEY,
+    id_torneo INT NOT NULL REFERENCES torneos(id_torneo) ON DELETE CASCADE,
+    nombre_equipo VARCHAR(100) NOT NULL,
+    pj INT DEFAULT 0,
+    pg INT DEFAULT 0,
+    pe INT DEFAULT 0,
+    pp INT DEFAULT 0,
+    gf INT DEFAULT 0,
+    gc INT DEFAULT 0,
+    dg INT DEFAULT 0,
+    puntos INT DEFAULT 0,
+    UNIQUE (id_torneo, nombre_equipo)
+);

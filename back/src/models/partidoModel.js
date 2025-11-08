@@ -1,4 +1,6 @@
-const pool = require('./db');
+
+const { pool } = require('../../db');
+
 
 // Crear un partido
 async function crearPartido(id_torneo, fecha_partido, equipo_local, equipo_visitante) {
