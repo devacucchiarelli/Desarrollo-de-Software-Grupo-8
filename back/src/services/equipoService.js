@@ -36,6 +36,7 @@ async function eliminarJugadorService  (idEquipo, idJugador)  {
   return await equipoModel.eliminarJugador(idEquipo, idJugador);
 };
 
+
 module.exports = {
   crearEquipoService,
   getEquipoPorCapitanService,

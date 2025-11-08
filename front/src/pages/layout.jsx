@@ -22,7 +22,7 @@ function Layout({ usuario, onLogout }) {
         <nav className="header-nav">
           <Link to="/torneo" className="btn">Torneos</Link>
           <Link to="/equipo" className="btn">Equipo</Link>
-          <Link to="/estadisticas" className="btn">Estadísticas</Link>
+          <Link to="/torneos" className="btn">Estadísticas</Link>
           
           {/* Solo mostrar "Usuarios" si es admin */}
           {isAdmin && (
