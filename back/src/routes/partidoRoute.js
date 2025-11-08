@@ -2,7 +2,8 @@ const express = require('express');
 const {
   getPartidosController,
   updatePartidoController,
-  deletePartidoController
+  deletePartidoController,
+  actualizarResultadoController, 
 } = require('../controllers/partidoController.js');
 // Importamos el middleware de autenticación
 const verificarToken = require('../middleware/authMiddleware.js');
@@ -14,6 +15,9 @@ router.get('/:idTorneo', getPartidosController);
 
 // PUT /partidos/:idPartido - Editar un partido (privado, requiere login)
 router.put('/:idPartido', verificarToken, updatePartidoController);
+
+// PUT /partidos/:idPartido/resultado - Cargar solo el resultado (privado)
+router.put('/:idPartido/resultado', verificarToken, actualizarResultadoController);
 
 // DELETE /partidos/:idPartido - Eliminar un partido (privado, requiere login)
 router.delete('/:idPartido', verificarToken, deletePartidoController);

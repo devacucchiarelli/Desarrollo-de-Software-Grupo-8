@@ -1,5 +1,9 @@
 const partidoModel = require('../models/partidoModel');
 
+const tablaPosicionesService = require('./tablaPosicionesService'); 
+const { query } = require('../../db'); //  para actualizar solo resultado
+
+
 // --- Lógica de generación de fixture (AHORA basada en cantidad_equipos) ---
 async function generarPartidosParaTorneo(id_torneo, cantidad_equipos) {
   // Validamos cantidad (aunque ya debería venir validada desde torneoService)
@@ -159,18 +163,75 @@ async function updatePartidoService(id_partido, data) {
     );
   }
 
-  console.log('✅ Partido y estadísticas actualizadas correctamente');
+
+    //calcular tabla de posiciones del torneo de este partido
+  const { rows } = await query(
+    'SELECT id_torneo FROM partidos WHERE id_partido = $1',
+    [id_partido]
+  );
+
+  if (rows.length) {
+    await tablaPosicionesService.recalcularTablaPorTorneo(rows[0].id_torneo);
+  }
+
+  console.log('✅ Partido, estadísticas y tabla de posiciones actualizadas');
+
+
   return { message: 'Partido y estadísticas actualizadas' };
 }
 
 async function deletePartidoService(id_partido) {
   return await partidoModel.deletePartido(id_partido);
 }
+
+// Actualizar SOLO el resultado del partido (para historia "Carga resultado (liga)")
+async function actualizarResultadoService(id_partido, resultado_local, resultado_visitante) {
+  if (
+    resultado_local === undefined ||
+    resultado_visitante === undefined ||
+    isNaN(resultado_local) ||
+    isNaN(resultado_visitante)
+  ) {
+    throw new Error('Debes enviar resultado_local y resultado_visitante como números.');
+  }
+
+  // 1️⃣ Actualizar resultado en la tabla partidos
+  const updateResult = await query(
+    `
+    UPDATE partidos
+    SET resultado_local = $1,
+        resultado_visitante = $2
+    WHERE id_partido = $3
+    RETURNING id_torneo;
+    `,
+    [resultado_local, resultado_visitante, id_partido]
+  );
+
+  if (updateResult.rowCount === 0) {
+    throw new Error('Partido no encontrado.');
+  }
+
+  const { id_torneo } = updateResult.rows[0];
+
+  //  Recalcular tabla de posiciones completa de ese torneo
+  await tablaPosicionesService.recalcularTablaPorTorneo(id_torneo);
+
+  return {
+    id_partido,
+    id_torneo,
+    resultado_local,
+    resultado_visitante,
+    message: 'Resultado actualizado y tabla de posiciones recalculada.',
+  };
+}
+
 // --- Fin resto de funciones ---
 
 module.exports = {
   generarPartidosParaTorneo,
   getPartidosPorTorneoService,
   updatePartidoService,
-  deletePartidoService
+  deletePartidoService,
+  actualizarResultadoService
 };
+

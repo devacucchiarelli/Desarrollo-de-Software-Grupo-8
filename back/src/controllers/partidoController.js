@@ -30,8 +30,32 @@ async function deletePartidoController(req, res) {
   }
 }
 
+// actualiza resultados
+async function actualizarResultadoController(req, res) {
+  try {
+    const { idPartido } = req.params; // 
+    const { resultado_local, resultado_visitante } = req.body;
+
+    const resultado = await partidoService.actualizarResultadoService(
+      idPartido,
+      resultado_local,
+      resultado_visitante
+    );
+
+    res.status(200).json({
+      message: 'Resultado actualizado correctamente.',
+      resultado,
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+
 module.exports = {
   getPartidosController,
   updatePartidoController,
-  deletePartidoController
+  deletePartidoController,
+  actualizarResultadoController,
 };
+

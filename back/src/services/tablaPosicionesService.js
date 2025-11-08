@@ -1,6 +1,8 @@
 const partidoModel = require('../models/partidoModel');
 const equipoModel = require('../models/equipoModel');
 const torneoModel = require('../models/torneoModel');
+const { query } = require('../../db');
+
 
 async function calcularTablaPosiciones(id_torneo) {
     // 1. Obtener partidos y equipos
@@ -24,38 +26,9 @@ async function calcularTablaPosiciones(id_torneo) {
         };
     });
 
-    // 3. Procesar partidos
-    partidos.forEach(partido => {
-        const resLocal = partido.resultado_local;
-        const resVisitante = partido.resultado_visitante;
+  
 
-        // Solo procesar si hay resultados
-        if (resLocal !== null && resVisitante !== null) {
-            // **IMPORTANTE**: Asumimos que podemos encontrar equipos por nombre exacto.
-            // Sería MUCHO MEJOR si la tabla 'partidos' tuviera id_equipo_local e id_equipo_visitante.
-            const equipoLocal = equiposInscritos.find(e => e.nombre_equipo === partido.equipo_local);
-            const equipoVisitante = equiposInscritos.find(e => e.nombre_equipo === partido.equipo_visitante);
-
-            // Actualizar stats Local
-            if (equipoLocal && estadisticas[equipoLocal.id_equipo]) {
-                const statsL = estadisticas[equipoLocal.id_equipo];
-                statsL.PJ++; statsL.GF += resLocal; statsL.GC += resVisitante;
-                if (resLocal > resVisitante) { statsL.PG++; statsL.PTS += 3; }
-                else if (resLocal === resVisitante) { statsL.PE++; statsL.PTS += 1; }
-                else { statsL.PP++; }
-            }
-             // Actualizar stats Visitante
-            if (equipoVisitante && estadisticas[equipoVisitante.id_equipo]) {
-                const statsV = estadisticas[equipoVisitante.id_equipo];
-                statsV.PJ++; statsV.GF += resVisitante; statsV.GC += resLocal;
-                if (resVisitante > resLocal) { statsV.PG++; statsV.PTS += 3; }
-                else if (resVisitante === resLocal) { statsV.PE++; statsV.PTS += 1; }
-                else { statsV.PP++; }
-            }
-        }
-    });
-
-    // 4. Procesar cada partido para actualizar estadísticas
+    //  Procesar cada partido para actualizar estadísticas
     partidos.forEach(partido => {
         const resLocal = partido.resultado_local;
         const resVisitante = partido.resultado_visitante;
@@ -104,6 +77,55 @@ async function calcularTablaPosiciones(id_torneo) {
     return tablaArray;
 }
 
+// Recalcula y persiste la tabla_posiciones en base a los resultados del torneo
+async function recalcularTablaPorTorneo(id_torneo) {
+  const tabla = await calcularTablaPosiciones(id_torneo);
+
+  // Limpiar tabla anterior de ese torneo
+  await query('DELETE FROM tabla_posiciones WHERE id_torneo = $1', [id_torneo]);
+
+  // Insertar nueva tabla calculada
+  for (const row of tabla) {
+    await query(
+      `
+      INSERT INTO tabla_posiciones (
+        id_torneo, nombre_equipo,
+        pj, pg, pe, pp, gf, gc, dg, puntos
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+      `,
+      [
+        id_torneo,
+        row.nombre_equipo,
+        row.PJ,
+        row.PG,
+        row.PE,
+        row.PP,
+        row.GF,
+        row.GC,
+        row.DG,
+        row.PTS,
+      ]
+    );
+  }
+}
+
+// Devuelve la tabla de posiciones ya guardada en la BD
+async function obtenerTablaPorTorneo(id_torneo) {
+  const { rows } = await query(
+    `
+    SELECT nombre_equipo, pj, pg, pe, pp, gf, gc, dg, puntos
+    FROM tabla_posiciones
+    WHERE id_torneo = $1
+    ORDER BY puntos DESC, dg DESC, gf DESC, nombre_equipo ASC;
+    `,
+    [id_torneo]
+  );
+
+  return rows;
+}
+
+
 async function actualizarNombreEquipo(id_equipo, nuevo_nombre) {
     try {
         const equipoActualizado = await equipoModel.actualizarNombreEquipo(id_equipo, nuevo_nombre);
@@ -114,4 +136,9 @@ async function actualizarNombreEquipo(id_equipo, nuevo_nombre) {
     }
 }
 
-module.exports = { calcularTablaPosiciones, actualizarNombreEquipo };
+module.exports = {
+  recalcularTablaPorTorneo,
+  obtenerTablaPorTorneo,
+  actualizarNombreEquipo,
+  calcularTablaPosiciones, 
+};

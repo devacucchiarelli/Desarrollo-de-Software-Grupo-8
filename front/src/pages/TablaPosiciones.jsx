@@ -1,8 +1,13 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import '../styles/css/tablaPosiciones.css'; // Asegúrate que este archivo exista
+import '../styles/css/tablaPosiciones.css';
+import { getTablaPosiciones, updateNombreEquipo } from "../servicios/partidosService";
 
-export default function TablaPosiciones({ isAdmin }) {
+
+
+export default function TablaPosiciones({ usuario }) {
+    const isAdmin = usuario?.rol === 'administrador';
+
     const [tabla, setTabla] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);

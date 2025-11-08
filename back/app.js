@@ -31,9 +31,11 @@ app.use((req, res, next) => {
   
   // Lista de rutas GET públicas (pueden ser strings o regex)
   const rutasPublicasGET = [
-    '/torneo',           // Exact match para la lista de torneos
-    /^\/partidos\/\d+$/ // Regex para /partidos/1, /partidos/23, etc.
-  ]; 
+    '/torneo',            // lista de torneos
+    /^\/partidos\/\d+$/,  // ver fixture por torneo
+    /^\/tabla\/\d+$/      // ver tabla de posiciones por torneo
+  ];
+
 
   // Si la ruta es pública, dejamos pasar
   if (req.method === 'POST' && rutasPublicasPOST.includes(req.path)) {
@@ -64,7 +66,7 @@ app.use('/equipos', equiposRouter);
 app.use('/torneo', torneoRouter);
 app.use('/inscripciones', inscripcionesRouter);
 app.use('/usuarios', usuarioRoutes);
-app.use('/api/estadisticas', estadisticasRoutes);
+
 app.use('/partidos', partidoRouter);
 app.use('/tabla', tablaPosicionesRouter);
 app.use('/estadisticas', estadisticasRouter);
