@@ -1,3 +1,5 @@
+
+
 .estadisticas-torneo-container {
   width: 100%;
   max-width: none;
@@ -456,4 +458,6 @@
   }
   
   .contenedor-horizontal {
-    gap:
+    gap: 15px;
+  }
+}
