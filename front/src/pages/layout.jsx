@@ -93,6 +93,10 @@ export default function Layout({ usuario, onLogout }) {
                 <Link to="/usuarios" className="btn">Usuarios</Link>
               )}
               <span className="btn btn-welcome">¡Hola, {usuario.rol}!</span>
+
+              {/*Botón "Mi perfil" */}
+              <Link to="/perfil" className="btn">Mi Perfil</Link>
+
               <button onClick={onLogout} className="btn btn-login">Logout</button>
             </>
           ) : (

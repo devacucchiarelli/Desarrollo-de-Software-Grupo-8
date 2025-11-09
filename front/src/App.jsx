@@ -10,6 +10,7 @@ import Fixture from "./pages/Fixture.jsx";
 import EstadisticasTorneo from './pages/EstadisticasTorneo.jsx';
 import TablaPosiciones from "./pages/TablaPosiciones.jsx";
 import Layout from './pages/layout';
+import PerfilUsuario from "./pages/PerfilUsuario";
 import ListaTorneos from './pages/ListaTorneos.jsx'
 
 import React, { useState, useEffect } from 'react';
@@ -78,6 +79,7 @@ function App() {
           <Route path="/torneo" element={<Torneos usuario={usuario} />} />
           <Route path="/torneo/:idTorneo/fixture" element={<Fixture usuario={usuario} />} />
           <Route path="/torneo/:idTorneo/tabla" element={<TablaPosiciones usuario={usuario} />} />
+          <Route path="/perfil" element={<PerfilUsuario />} />
           <Route path="/equipo/inscripcion/:idEquipo" element={<Equipo />} />
 
           {/* ✅ RUTAS DE ESTADÍSTICAS */}
