@@ -31,7 +31,6 @@ function App() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('🔵 Usuario desde /usuarios/me:', data);
         setUsuario(data);
       } else {
         setUsuario(null);
@@ -79,7 +78,8 @@ function App() {
           <Route path="/torneo" element={<Torneos usuario={usuario} />} />
           <Route path="/torneo/:idTorneo/fixture" element={<Fixture usuario={usuario} />} />
           <Route path="/torneo/:idTorneo/tabla" element={<TablaPosiciones usuario={usuario} />} />
-          
+          <Route path="/equipo/inscripcion/:idEquipo" element={<Equipo />} />
+
           {/* ✅ RUTAS DE ESTADÍSTICAS */}
           <Route path="/torneos" element={<ListaTorneos usuario={usuario} />} />
           <Route path="/estadisticas/:id_torneo" element={<EstadisticasTorneo usuario={usuario} />} />

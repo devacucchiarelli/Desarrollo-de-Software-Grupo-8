@@ -234,7 +234,6 @@ const EstadisticasService = {
   // ✅ NUEVO: Obtener lista de torneos con partidos jugados
   async obtenerTorneosConEstadisticas() {
     try {
-      console.log('📊 Obteniendo torneos con estadísticas...');
 
       const query = `
       SELECT 
@@ -253,7 +252,6 @@ const EstadisticasService = {
     `;
 
       const result = await pool.query(query);
-      console.log('✅ Torneos encontrados:', result.rows.length);
       return result.rows;
     } catch (error) {
       console.error('❌ Error en obtenerTorneosConEstadisticas:', error);

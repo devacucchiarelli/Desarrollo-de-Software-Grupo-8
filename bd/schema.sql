@@ -137,3 +137,25 @@ CREATE TABLE estadisticas_jugador_partido (
         REFERENCES usuarios(id_usuario)
         ON DELETE CASCADE
 );
+
+-- Tabla para solicitudes de inscripción a equipos
+CREATE TABLE solicitudes_equipo (
+    id_solicitud SERIAL PRIMARY KEY,
+    id_equipo INT NOT NULL,
+    id_jugador INT NOT NULL,
+    estado VARCHAR(20) DEFAULT 'pendiente' CHECK (estado IN ('pendiente', 'aceptada', 'rechazada')),
+    fecha_solicitud TIMESTAMPTZ DEFAULT NOW(),
+    fecha_respuesta TIMESTAMPTZ,
+    CONSTRAINT fk_solicitud_equipo
+        FOREIGN KEY (id_equipo)
+        REFERENCES equipos(id_equipo)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_solicitud_jugador
+        FOREIGN KEY (id_jugador)
+        REFERENCES usuarios(id_usuario)
+        ON DELETE CASCADE,
+    CONSTRAINT unique_solicitud_activa UNIQUE (id_equipo, id_jugador, estado)
+);
+
+-- Índice para búsquedas rápidas de solicitudes pendientes
+CREATE INDEX idx_solicitudes_pendientes ON solicitudes_equipo(id_equipo, estado) WHERE estado = 'pendiente';
