@@ -421,8 +421,8 @@ export default function Page({ usuario: usuarioProp }) {
             padding: '20px',
             marginBottom: '20px'
           }}>
-            <h3 style={{marginBottom: '10px'}}>🔗 Enlace de inscripción</h3>
-            <p style={{fontSize: '0.9rem', color: '#666', marginBottom: '10px'}}>
+            <h3 style={{marginBottom: '10px', color: '#000000ff'}}>🔗 Enlace de inscripción</h3>
+            <p style={{fontSize: '0.9rem', color: '#0a0a0aff', marginBottom: '10px'}}>
               Comparte este enlace para que jugadores soliciten unirse
             </p>
             <code style={{
@@ -433,7 +433,8 @@ export default function Page({ usuario: usuarioProp }) {
               borderRadius: '8px',
               fontSize: '0.85rem',
               wordBreak: 'break-all',
-              marginBottom: '10px'
+              marginBottom: '10px',
+              color: 'rgba(0, 0, 0, 1)'
             }}>
               {window.location.origin}/equipo/inscripcion/{miEquipo.id_equipo}
             </code>

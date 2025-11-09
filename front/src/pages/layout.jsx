@@ -85,14 +85,14 @@ export default function Layout({ usuario, onLogout }) {
         <nav className="header-nav fade-in-header">
           <Link to="/torneo" className="btn">Torneos</Link>
           <Link to="/equipo" className="btn">Equipo</Link>
-          <Link to="/estadisticas" className="btn">Estadísticas</Link>
+          <Link to="/torneos" className="btn">Estadísticas</Link>
           
           {usuario ? (
             <>
               {usuario.rol === 'administrador' && (
                 <Link to="/usuarios" className="btn">Usuarios</Link>
               )}
-              <span className="btn btn-welcome">¡Hola, {usuario.nombre}!</span>
+              <span className="btn btn-welcome">¡Hola, {usuario.rol}!</span>
               <button onClick={onLogout} className="btn btn-login">Logout</button>
             </>
           ) : (
