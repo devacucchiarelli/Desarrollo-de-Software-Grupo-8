@@ -66,7 +66,23 @@ const UsuarioController = {
       console.error('Error al obtener usuario:', error);
       res.status(500).json({ error: error.message });
     }
-  }
+  },
+
+    async obtenerPerfilUsuario(req, res) {
+    try {
+      const id_usuario = req.usuario.id_usuario;
+      const perfil = await UsuarioService.obtenerPerfilUsuario(id_usuario);
+
+      if (!perfil) {
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+      }
+
+      res.status(200).json(perfil);
+    } catch (error) {
+      console.error('Error al obtener perfil de usuario:', error);
+      res.status(500).json({ error: 'Error al obtener perfil de usuario' });
+    }
+  },
 };
 
 module.exports = { UsuarioController };

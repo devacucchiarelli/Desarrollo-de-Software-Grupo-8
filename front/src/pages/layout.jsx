@@ -38,6 +38,10 @@ function Layout({ usuario, onLogout }) {
                 {usuario.rol === 'capitan' && ' (Capitán)'}
                 {usuario.rol === 'jugador' && ' (Jugador)'}
               </span>
+
+              {/*Botón "Mi perfil" */}
+              <Link to="/perfil" className="btn">Mi Perfil</Link>
+
               <button onClick={handleLogout} className="btn btn-login">
                 Cerrar Sesión
               </button>
