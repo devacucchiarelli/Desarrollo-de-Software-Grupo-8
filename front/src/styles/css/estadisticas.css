@@ -44,8 +44,6 @@
 }
 
 .torneo-card {
-  background: #f5f5f5;
-  border: 2px solid #ddd;
   border-radius: 8px;
   padding: 20px;
   cursor: pointer;

@@ -477,6 +477,60 @@
     font-size: 0.8rem; 
 }
 
+/* ============================================== */
+/* 7. ESTILOS PARA EL STEPPER DE GOLES (NUEVO)  */
+/* ============================================== */
+
+.goal-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* Espacio entre label, botones y número */
+}
+
+.goal-stepper label {
+  margin-bottom: 0 !important; /* Sobreescribe el margin-bottom de .modal-content label */
+  flex-basis: 120px; /* Ancho fijo para "Resultado Local" */
+  flex-shrink: 0;
+}
+
+.goal-stepper button {
+  background-color: var(--color-border);
+  color: var(--color-text-primary);
+  border: none;
+  width: 40px; /* Botón cuadrado */
+  height: 40px;
+  font-size: 1.5rem; /* Tamaño del + y - */
+  font-weight: bold;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.goal-stepper button:hover:not(:disabled) {
+  background-color: #475569;
+}
+.goal-stepper button:disabled {
+  background-color: var(--color-bg-dark);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.goal-score {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--color-accent-secondary, #facc15); /* Resultado en dorado */
+  background-color: var(--color-bg-dark);
+  padding: 0.25rem 1rem;
+  border-radius: var(--border-radius-sm);
+  min-width: 50px; /* Ancho mínimo */
+  text-align: center;
+  border: 1px solid var(--color-border);
+}
+
+/* Ocultar el tag de audio */
+audio {
+  display: none;
+}
+
 /* Responsive */
 @media (max-width: 1200px) {
     .modal-content {
