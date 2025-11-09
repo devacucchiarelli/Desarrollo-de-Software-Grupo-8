@@ -54,9 +54,6 @@ exports.listar = async () => {
        ORDER BY et.id_torneo DESC, e.id_equipo DESC`
     );
     
-    console.log('📊 Inscripciones encontradas:', rows.length);
-    console.log('Datos:', rows);
-    
     return rows;
   } catch (err) {
     console.error('Error listando inscripciones en service:', err);

@@ -2,7 +2,6 @@ const { UsuarioService } = require('../services/usuarioService.js');
 
 const UsuarioController = {
   async crearUsuario(req, res) {
-    console.log('Body recibido en registro:', req.body);
     try {
       const usuario = await UsuarioService.crearUsuario(req.body);
       res.status(201).json({
@@ -24,8 +23,6 @@ const UsuarioController = {
   },
 
   async login(req, res) {
-    console.log('Body recibido en login:', req.body);
-
     try {
       const { email, password } = req.body;
       const { usuario, token } = await UsuarioService.login({ email, password });
@@ -50,7 +47,6 @@ const UsuarioController = {
 
   async getMeController(req, res) {
     try {
-      console.log('🔴 req.usuario en backend:', req.usuario); // ← AGREGAR ESTO
 
       if (!req.usuario) {
         return res.status(401).json({ error: 'No autenticado' });

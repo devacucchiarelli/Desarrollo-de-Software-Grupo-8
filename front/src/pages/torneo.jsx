@@ -133,7 +133,6 @@ export default function Torneos({ usuario }) {
             });
 
             if (response.ok) {
-                alert('Equipo registrado exitosamente!');
                 cargarInscripciones();
                 cerrarModalInscripcion();
             } else {
