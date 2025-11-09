@@ -33,16 +33,6 @@ function SettingsModal({
             </button>
           </div>
         </div>
-        
-        {/* Sección de Sonidos (para el futuro) */}
-        <div className="settings-section disabled">
-          <h3>Sonidos (SFX)</h3>
-          <div className="settings-row">
-            <label>Volumen</label>
-            <input type="range" min="0" max="1" step="0.01" value="0.5" disabled className="volume-slider"/>
-            <button className="btn-mute" disabled>Mutear</button>
-          </div>
-        </div>
 
         <button onClick={onClose} className="btn-close-modal">Cerrar</button>
       </div>
