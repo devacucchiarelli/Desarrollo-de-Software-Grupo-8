@@ -1,4 +1,3 @@
-
 const equipoModel = require('../models/equipoModel.js');
 
 async function crearEquipoService(nombre_equipo, id_capitan) {
