@@ -302,7 +302,95 @@
   .form-submit-btn.btn-edit-submit:hover { background-color: #fde047; }
   
   /* ============================================== */
-  /* 6. MEDIA QUERIES PARA ESCRITORIO (> 768px)   */
+/* 6. ANIMACIONES Y VIDEO (AGREGADO)              */
+/* ============================================== */
+
+/* --- Contenedor del Video Hero (Tu CSS forzado) --- */
+.video-hero-container {
+  width: 2000px;
+  height: 50vh;
+  overflow: hidden;
+  position: relative; /* Clave para el título absoluto */
+  background-color: #000;
+  opacity: 0;
+  box-shadow: 0 0 10px 0 rgba(113, 112, 116, 0.5);
+  margin-left: -400px; /* Centrado compensatorio para 'right' */
+}
+
+/* El Video */
+.video-hero {
+  width: 100%; /* 100% del contenedor de 2000px */
+  height: auto;
+}
+
+/* Título sobre el video (movido desde .main-title) */
+.main-title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  width: 100%;
+  margin: 0;
+  text-align: center;
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+  opacity: 0;
+}
+
+/* El .app-container ahora también necesita animación */
+.app-container {
+  opacity: 0;
+}
+
+/* El .main-content-wrapper (dentro de app-container) también */
+.main-content-wrapper {
+  opacity: 0;
+}
+
+
+/* --- Definición de animaciones (Keyframes) --- */
+@keyframes fadeInBackground {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes fadeInHeader {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInVideo {
+    from { opacity: 0; transform: scale(1.03); }
+    to { opacity: 1; transform: scale(1); }
+}
+@keyframes fadeInHeroTitle {
+    from { opacity: 0; transform: translate(-50%, -30%); }
+    to { opacity: 1; transform: translate(-50%, -50%); }
+}
+@keyframes fadeInMain {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Aplicación de animaciones (Clases) --- */
+/* (El .fade-in-header ya lo aplica layout.jsx) */
+
+.fade-in-video {
+    animation: fadeInVideo 2.5s ease-out 0.6s forwards;
+}
+.fade-in-bg {
+    animation: fadeInBackground 3s ease-in 1.0s forwards;
+}
+.fade-in-hero-title {
+    animation: fadeInHeroTitle 2s ease-out 1.5s forwards;
+}
+.fade-in-main {
+    animation: fadeInMain 2s ease-out 2.0s forwards;
+}
+
+  /* ============================================== */
+  /* 7. MEDIA QUERIES PARA ESCRITORIO (> 768px)   */
   /* ============================================== */
   @media (min-width: 768px) {
 
