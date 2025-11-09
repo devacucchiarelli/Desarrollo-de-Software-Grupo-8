@@ -1,0 +1,147 @@
+.lista-torneos-container {
+  width: 100%;
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 20px 40px;
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+}
+
+.lista-torneos-container h2 {
+  text-align: center;
+  margin-bottom: 40px;
+  font-size: 32px;
+  color: #333;
+}
+
+.btn-volver {
+  padding: 10px 20px;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.btn-volver:hover {
+  background-color: #555;
+}
+
+.torneos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+.torneo-card {
+  border-radius: 12px;
+  padding: 25px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.torneo-card:hover {
+  border-color: #4CAF50;
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.torneo-card h3 {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  color: #333;
+  font-weight: bold;
+}
+
+.torneo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.torneo-info span {
+  font-size: 14px;
+  color: #555;
+  padding: 5px 0;
+}
+
+.torneo-info .fecha-torneo {
+  color: #999;
+  font-size: 13px;
+  margin-top: 5px;
+  text-align: center;
+}
+
+.btn-ver-stats {
+  margin-top: 15px;
+  width: 100%;
+  padding: 12px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.btn-ver-stats:hover {
+  background-color: #45a049;
+}
+
+.loading-spinner,
+.mensaje-vacio {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  font-size: 18px;
+}
+
+.mensaje-error {
+  background: #ffebee;
+  color: #c62828;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 4px solid #c62828;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+@media (max-width: 1024px) {
+  .lista-torneos-container {
+    padding: 20px 25px;
+  }
+  
+  .torneos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .torneos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+  }
+  
+  .lista-torneos-container h2 {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .torneos-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .lista-torneos-container {
+    padding: 15px;
+  }
+}

@@ -19,4 +19,7 @@ router.post('/jugadores', EstadisticasController.registrarEstadisticasJugadores)
 // Obtener estadísticas de un partido específico
 router.get('/partido/:id_partido', EstadisticasController.obtenerEstadisticasPartido);
 
+
+router.get('/torneo/:id_torneo/resumen', EstadisticasController.obtenerResumenEstadisticasTorneo);
+
 module.exports = router;

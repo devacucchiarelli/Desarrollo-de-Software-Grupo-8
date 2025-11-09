@@ -36,6 +36,26 @@ async function eliminarJugadorService  (idEquipo, idJugador)  {
   return await equipoModel.eliminarJugador(idEquipo, idJugador);
 };
 
+
+async function crearSolicitudInscripcionService(id_equipo, id_jugador) {
+  return await equipoModel.crearSolicitudInscripcion(id_equipo, id_jugador);
+}
+
+async function getSolicitudesPendientesService(id_equipo) {
+  return await equipoModel.getSolicitudesPendientes(id_equipo);
+}
+
+async function responderSolicitudService(id_solicitud, estado, id_capitan) {
+  if (!['aceptada', 'rechazada'].includes(estado)) {
+    throw new Error('Estado inválido');
+  }
+  return await equipoModel.responderSolicitud(id_solicitud, estado, id_capitan);
+}
+
+async function getEquipoPorIdService(id_equipo) {
+  return await equipoModel.findEquipoById(id_equipo);
+}
+
 module.exports = {
   crearEquipoService,
   getEquipoPorCapitanService,
@@ -43,5 +63,9 @@ module.exports = {
   agregarJugadoresService,
   getJugadoresEquipoService,
   eliminarJugadorService,
-  getUsuarioPorIdService
+  getUsuarioPorIdService,
+  crearSolicitudInscripcionService,
+  getSolicitudesPendientesService,
+  responderSolicitudService,
+  getEquipoPorIdService
 };

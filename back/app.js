@@ -9,6 +9,7 @@ const inscripcionesRouter = require('./src/routes/inscripciones.router.js');
 const usuarioRoutes = require('./src/routes/usuarioRoutes.js');
 const tablaPosicionesRouter = require('./src/routes/tablaPosicionesRoute.js');
 const estadisticasRoutes = require('./src/routes/estadisticasRoutes.js');
+
 const partidoRouter = require('./src/routes/partidoRoute.js');
 
 const verificarToken = require('./src/middleware/authMiddleware.js');

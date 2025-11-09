@@ -3,16 +3,11 @@ const inscripcionesService = require('../services/inscripciones.services');
 
 exports.crear = async (req, res) => {
   try {
-    console.log('📥 ========== CREAR INSCRIPCIÓN ==========');
-    console.log('Body completo recibido:', req.body);
-    console.log('Headers:', req.headers);
+
     
     const { id_torneo, id_equipo } = req.body;
 
-    console.log('Valores extraídos:');
-    console.log('   id_torneo:', id_torneo, typeof id_torneo);
-    console.log('   id_equipo:', id_equipo, typeof id_equipo);
-
+  
     if (!id_torneo || !id_equipo) {
       console.error('❌ Validación fallida - faltan parámetros');
       return res.status(400).json({ 
@@ -21,20 +16,13 @@ exports.crear = async (req, res) => {
       });
     }
 
-    console.log('✅ Validación pasada, llamando al servicio...');
 
     const resultado = await inscripcionesService.inscribirEquipo({
       torneoId: id_torneo,
       equipoId: id_equipo
     });
 
-    console.log('✅ Servicio completado exitosamente');
-    console.log('=========================================');
 
-    res.status(201).json({
-      message: 'Equipo inscrito exitosamente',
-      ...resultado
-    });
   } catch (error) {
     console.error('❌ Error al crear inscripción:', error.message);
     console.error('Stack:', error.stack);
@@ -53,8 +41,6 @@ exports.crear = async (req, res) => {
 exports.listar = async (req, res) => {
   try {
     const inscripciones = await inscripcionesService.listar();
-    
-    console.log('📤 Enviando al frontend:', inscripciones.length, 'inscripciones');
     
     res.json(inscripciones);
   } catch (error) {
