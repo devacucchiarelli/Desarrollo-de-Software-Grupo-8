@@ -57,7 +57,7 @@ function PerfilUsuario() {
         <ul>
           {torneos.map((t) => (
             <li key={t.id_torneo}>
-              <a href={`/torneo/${t.id_torneo}/tabla`}>
+              <a href={`/estadisticas/${t.id_torneo}`}>
                 {t.nombre_torneo} ({t.tipo_torneo}, {t.formato})
               </a>
             </li>
