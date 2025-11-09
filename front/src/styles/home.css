@@ -131,14 +131,13 @@
   /* ============================================== */
   .torneo-card,
   .form-card {
-    background-color: var(--color-bg-light);
+    background-color: #1e293b;
     border-radius: var(--border-radius-lg);
     padding: 2rem;
     border: 1px solid var(--color-border);
     box-shadow: var(--shadow-lg);
     transition: var(--transition-fast);
     width: 100%;
-    transform: translateX(-35px);
   }
   
   .torneo-card:not(.no-torneo-card):hover {
@@ -389,8 +388,170 @@
     animation: fadeInMain 2s ease-out 2.0s forwards;
 }
 
+/* ============================================== */
+/* 7. ESTILOS DE AJUSTES (NUEVO)                */
+/* ============================================== */
+
+/* --- Estilo Botón Ajustes --- */
+.btn-settings {
+  background: var(--color-bg-light);
+  color: var(--color-text-secondary);
+  padding: 0.5rem 0.8rem;
+  font-size: 1.3rem; /* Tamaño del emoji */
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  line-height: 1;
+  border-radius: var(--border-radius-md);
+  transition: all 0.2s ease-in-out;
+}
+.btn-settings:hover {
+  background: var(--color-border);
+  color: white;
+  border-color: var(--color-accent-primary);
+}
+
+/* --- Estilos Modal de Ajustes --- */
+.settings-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001; /* Por encima del header */
+  backdrop-filter: blur(5px);
+}
+
+.settings-modal-content {
+  background-color: var(--color-bg-light, #1e293b);
+  padding: 2rem;
+  border-radius: var(--border-radius-lg, 12px);
+  border: 1px solid var(--color-border, #4a637a);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+  width: 90%;
+  max-width: 450px;
+  color: var(--color-text-primary, #ecf0f1);
+  animation: fadeInModal 0.3s ease-out;
+}
+
+@keyframes fadeInModal {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.settings-modal-content h2 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 2rem;
+  color: var(--color-accent-primary, #38bdf8);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.settings-section {
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 1.5rem;
+}
+.settings-section:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0.5rem;
+}
+.settings-section.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.settings-section h3 {
+  color: var(--color-accent-secondary, #facc15);
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.settings-row label {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  flex-basis: 70px; /* Ancho fijo para "Volumen" */
+}
+
+/* Estilo del slider de volumen */
+.volume-slider {
+  flex-grow: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  background: var(--color-bg-dark);
+  border-radius: 5px;
+  border: 1px solid var(--color-border);
+  outline: none;
+  opacity: 0.7;
+  transition: opacity .2s;
+}
+.volume-slider:hover {
+  opacity: 1;
+}
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--color-accent-primary);
+  cursor: pointer;
+  border-radius: 50%;
+}
+.volume-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--color-accent-primary);
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.btn-mute {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: var(--border-radius-md);
+  background-color: var(--color-border);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  font-weight: 500;
+  width: 90px; /* Ancho fijo para 'Activar'/'Mutear' */
+  text-align: center;
+}
+.btn-mute:hover {
+  background-color: #475569;
+}
+
+.btn-close-modal {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  border: none;
+  border-radius: var(--border-radius-md);
+  background-color: var(--color-accent-primary);
+  color: var(--color-bg-dark);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.btn-close-modal:hover {
+  background-color: #7dd3fc;
+}
+
   /* ============================================== */
-  /* 7. MEDIA QUERIES PARA ESCRITORIO (> 768px)   */
+  /* 8. MEDIA QUERIES PARA ESCRITORIO (> 768px)   */
   /* ============================================== */
   @media (min-width: 768px) {
 

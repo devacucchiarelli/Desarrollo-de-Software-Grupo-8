@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
-import '../styles/home.css'; 
+import { useState, useEffect } from "react"; // Quitamos useRef de aquí
+import '../styles/home.css';
 import { useNavigate } from "react-router-dom";
-// Quitamos el 'import Layout' que estaba en tu archivo, ya que App.jsx lo maneja.
 
 const API_URL = 'http://localhost:3000/torneo';
 
@@ -26,14 +25,14 @@ function Home({ usuario }) { // Recibe 'usuario' de App.jsx
 
   // Helper para verificar roles (de tu archivo)
   const isAdmin = usuario?.rol === 'administrador';
-  const isCapitan = usuario?.rol === 'capitan';
-  const isJugador = usuario?.rol === 'jugador';
+  
+  // Quitamos los estados de música de aquí
 
   useEffect(() => {
     cargarTorneo();
   }, []);
 
-  // --- (Todas tus funciones: cargarTorneo, handleChange, handleSubmit, handleEdit, handleDelete... se mantienen EXACTAMENTE IGUAL) ---
+  // --- (Todas tus funciones: cargarTorneo, handleChange, handleSubmit, handleEdit, handleDelete, handleCardClick... se mantienen EXACTAMENTE IGUAL) ---
   const cargarTorneo = async () => { /* ... (Tu lógica de fetch) ... */ try { const response = await fetch(API_URL, { method: 'GET', credentials: 'include' }); if (!response.ok) throw new Error('No autorizado o error al cargar torneos'); const data = await response.json(); if (data.length > 0) { const hoy = new Date(); hoy.setHours(0, 0, 0, 0); const torneoActivo = data.find(t => { const inicio = new Date(t.fecha_inicio); inicio.setHours(0, 0, 0, 0); const fin = new Date(t.fecha_fin); fin.setHours(23, 59, 59, 999); return hoy >= inicio && hoy <= fin; }); setTorneo(torneoActivo || null); } else { setTorneo(null); } } catch (error) { console.error('Error al cargar torneo:', error); setError(error.message); } };
   const handleChange = (e) => { /* ... (Tu lógica de handle change) ... */ const { name, value } = e.target; setFormData(prev => { const newState = { ...prev, [name]: value }; if (name === 'formato') { newState.cantidadEquipos = value === 'eliminatoria' ? (prev.cantidadEquipos || '16') : (value === 'liga' ? prev.cantidadEquipos || '' : ''); } return newState; }); };
   const handleSubmit = async (e) => { /* ... (Tu lógica de submit) ... */ e.preventDefault(); setError(""); let cantidadEquiposNum = parseInt(formData.cantidadEquipos, 10); if (formData.formato === 'eliminatoria' && (!cantidadEquiposNum || ![8, 16, 32].includes(cantidadEquiposNum))) { setError("Para Eliminatoria, equipos debe ser 8, 16 o 32."); return; } if (formData.formato === 'liga' && (!cantidadEquiposNum || cantidadEquiposNum < 4 || cantidadEquiposNum > 30)) { setError("Para Liga, equipos debe ser entre 4 y 30."); return; } if (!formData.formato) { setError("Debes seleccionar un formato."); return; } try { const dataToSend = { nombre_torneo: formData.nombre, fecha_inicio: formData.fechaInicio, fecha_fin: formData.fechaFin, tipo_torneo: formData.tipo, formato: formData.formato, ...( (formData.formato === 'eliminatoria' || formData.formato === 'liga') && formData.cantidadEquipos && { cantidad_equipos: cantidadEquiposNum }) }; const options = { method: editando ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(dataToSend) }; const url = editando ? `${API_URL}/${torneo.id_torneo}` : API_URL; const response = await fetch(url, options); if (!response.ok) { const errorData = await response.json().catch(() => ({ error: 'Error desconocido al guardar torneo' })); throw new Error(errorData.error || 'Error al guardar torneo'); } setMostrarForm(false); setEditando(false); setFormatoOriginalAlEditar(''); setFormData(initialFormData); cargarTorneo(); } catch (error) { console.error('Error al guardar torneo:', error); setError(error.message); } };
@@ -43,32 +42,25 @@ function Home({ usuario }) { // Recibe 'usuario' de App.jsx
   // ---
 
   return (
-    // <-- Añadimos un Fragment para envolver todo
     <> 
-      {/* --- AÑADIDO: Contenedor del Video Hero --- */}
+      {/* Contenedor del Video Hero */}
       <div className="video-hero-container fade-in-video">
         <video
           autoPlay muted loop playsInline
           className="video-hero"
         >
-          {/* Asegúrate de tener este video en /front/public/intro.mp4 */}
           <source src="/intro.mp4" type="video/mp4" />
           Tu navegador no soporta el video.
         </video>
         
-        {/* --- TÍTULO MOVIDO AQUÍ --- */}
         <h1 className="main-title fade-in-hero-title">Bienvenido</h1>
       </div>
-      {/* --- FIN AÑADIDO --- */}
-
-
-      {/* Tu código original de app-container (sin el h1) */}
+      
+      {/* Contenedor de la App (con el fondo) */}
       <div className="app-container fade-in-bg">
         {error && <p className="error-message" style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
     
         <div className="main-content-wrapper fade-in-main">
-          
-          {/* --- El H1 "Bienvenido" FUE MOVIDO ARRIBA --- */}
           
           {torneo && !mostrarForm && (
             <div className="torneo-card" onClick={handleCardClick} style={{ cursor: 'pointer' }} title={`Click para ver ${torneo.formato === 'liga' ? 'tabla' : 'fixture'}`}>
@@ -119,31 +111,24 @@ function Home({ usuario }) { // Recibe 'usuario' de App.jsx
               </div>
               
               <div className="button-group-footer">
-                  <button 
-                      type="submit" 
-                      className={`btn form-submit-btn ${editando ? "btn-edit-submit" : "btn-create-submit"}`}
-                  >
-                      {editando ? "Guardar Cambios" : "Crear Torneo"}
-                  </button>
-                  <button 
-                      type="button" 
-                      onClick={() => { 
-                          setMostrarForm(false); 
-                          setEditando(false); 
-                          setFormatoOriginalAlEditar(''); 
-                          setFormData(initialFormData); 
-                          setError(""); 
-                      }} 
-                      className="btn btn-cancel"
-                  >
-                      Cancelar
-                  </button>
+                  <button typet="submit" className={`btn form-submit-btn ${editando ? "btn-edit-submit" : "btn-create-submit"}`}> {editando ? "Guardar Cambios" : "Crear Torneo"} </button>
+                  <button type="button" onClick={() => { setMostrarForm(false); setEditando(false); setFormatoOriginalAlEditar(''); setFormData(initialFormData); setError(""); }} className="btn btn-cancel"> Cancelar </button>
               </div>
             </form>
           )}
         </div>
       </div>
-    </> // <-- Cierre del Fragment
+      
+      {/* --- ETIQUETA DE AUDIO CON ID --- */}
+      <audio
+        id="background-music" // <-- ID para que layout.jsx lo controle
+        src="/menu-music.mp3" // Asumimos que está en /front/public/
+        loop
+        autoPlay
+        muted // <-- EMPIEZA MUTEADO
+      />
+      {/* --- FIN ETIQUETA AUDIO --- */}
+    </>
   );
 }
 

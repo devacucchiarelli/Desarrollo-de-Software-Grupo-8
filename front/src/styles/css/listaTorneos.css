@@ -37,8 +37,6 @@
 }
 
 .torneo-card {
-  background: white;
-  border: 2px solid #ddd;
   border-radius: 12px;
   padding: 25px;
   cursor: pointer;
