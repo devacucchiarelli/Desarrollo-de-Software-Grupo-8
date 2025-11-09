@@ -6,7 +6,7 @@ function PerfilUsuario() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/usuarios/perfil", {
+    fetch("http://localhost:3000/usuarios/perfil", {
       credentials: "include", // para enviar cookies (token)
     })
       .then((res) => {
