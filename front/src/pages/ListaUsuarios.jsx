@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
+import '../styles/css/listaUsuarios.css'; // <-- 1. Importamos el nuevo CSS
 
 export default function ListaUsuarios() {
-  const [usuarios, setUsuarios] = useState([])
+  const [usuarios, setUsuarios] = useState([]);
+  const [error, setError] = useState(null); // <-- 2. Añadimos estado de error
 
   useEffect(() => {
     const cargarUsuarios = async () => {
@@ -15,60 +17,61 @@ export default function ListaUsuarios() {
         setUsuarios(data);
       } catch (err) {
         console.error(err);
-        setError(err.message);
+        setError(err.message); // <-- 3. Seteamos el error
       }
     };
 
     cargarUsuarios();
   }, []);
 
+  // 4. Mapeo de roles a clases CSS
+  const getRoleClass = (rol) => {
+    switch (rol) {
+      case 'administrador':
+        return 'role-admin';
+      case 'capitan':
+        return 'role-capitan';
+      case 'jugador':
+        return 'role-jugador';
+      default:
+        return 'role-default';
+    }
+  };
+
   return (
-    <div style={{ maxWidth: 400, margin: '2rem auto' }}>
-      <h2>Usuarios registrados</h2>
-      <ul>
-        {usuarios.map((u, i) => (
-          <li key={i}>
-            {u.nombre} - {u.email} - {u.rol}
-          </li>
-        ))}
-      </ul>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px", // espacio entre los botones
-          alignItems: "center", // opcional, centra horizontalmente
-        }}
-      >
-        <a
-          href="/registro"
-          style={{
-            backgroundColor: "black",
-            color: "white",
-            padding: "4px 8px",
-            borderRadius: "4px",
-            textDecoration: "none",
-            cursor: "pointer",
-          }}
-        >
-          Crear nuevo usuario
-        </a>
+    // 5. Aplicamos clases CSS en lugar de estilos en línea
+    <div className="user-list-container">
+      <h2 className="user-list-title">Usuarios Registrados</h2>
 
-        <a
-          href="/"
-          style={{
-            backgroundColor: "black",
-            color: "white",
-            padding: "4px 8px",
-            borderRadius: "4px",
-            textDecoration: "none",
-            cursor: "pointer",
-          }}
-        >
-          Volver
+      {error && <p className="error-message">{error}</p>}
+
+      {usuarios.length > 0 ? (
+        <ul className="user-list">
+          {usuarios.map((u) => ( // Usamos 'u' (usuario)
+            <li key={u.id_usuario} className="user-list-item">
+              <div className="user-info">
+                <span className="user-name">{u.nombre}</span>
+                <span className="user-email">{u.email}</span>
+              </div>
+              <span className={`user-role-badge ${getRoleClass(u.rol)}`}>
+                {u.rol}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="no-users-message">No se encontraron usuarios registrados.</p>
+      )}
+
+      <div className="user-list-actions">
+        <a href="/registro" className="btn btn-create-user">
+          Crear Nuevo Usuario
         </a>
+        {/* El botón de volver ya está en el Layout, pero lo dejamos por si acaso */}
+        {/* <a href="/" className="btn btn-back">
+          Volver al Inicio
+        </a> */}
       </div>
-
     </div>
-  )
+  );
 }
