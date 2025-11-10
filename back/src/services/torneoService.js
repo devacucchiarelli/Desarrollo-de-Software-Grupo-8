@@ -42,7 +42,6 @@ async function crearTorneoService(data) {
   if (nuevoTorneo && nuevoTorneo.id_torneo && nuevoTorneo.formato === 'eliminatoria' && equiposParaGuardar) {
     try {
       await partidoService.generarPartidosParaTorneo(nuevoTorneo.id_torneo, equiposParaGuardar);
-      console.log(`Fixture de eliminatoria generado para torneo ${nuevoTorneo.id_torneo}`);
     } catch (genError) { console.error("Error al generar partidos:", genError.message); /* Considerar manejo de error */ }
   } else if (nuevoTorneo && nuevoTorneo.formato === 'liga') {
       console.log(`Torneo ${nuevoTorneo.id_torneo} creado como Liga con ${equiposParaGuardar} equipos. No se generan partidos automáticamente.`);
@@ -90,7 +89,6 @@ async function editarTorneoService(id_torneo, data) {
              if (!cantidad_equipos || ![8, 16, 32].includes(cantidad_equipos)) { throw new Error('Si cambias a Eliminatoria, la cantidad debe ser 8, 16 o 32.'); }
              cantidadFinal = cantidad_equipos;
              // NOTA: No regeneramos fixture al cambiar A eliminatoria en edición.
-             console.log(`Torneo ${idTorneoInt} cambiado a Eliminatoria (${cantidadFinal} equipos).`);
         } else if (formatoFinal === 'liga') {
              // --- VALIDACIÓN CANTIDAD LIGA AL EDITAR ---
              if (!cantidad_equipos || cantidad_equipos < 4 || cantidad_equipos > 30) { throw new Error('Para Liga, equipos debe ser entre 4 y 30.'); }
@@ -105,11 +103,7 @@ async function editarTorneoService(id_torneo, data) {
         // No hacemos nada con los partidos por ahora. Si hubiera partidos de liga previos, se mantendrían.
         // Si se cambia a Eliminatoria, NO se generan partidos.
 
-    } else {
-        // Si ERA eliminatoria, ignoramos cambios de formato/cantidad
-        console.log(`Torneo ${idTorneoInt} es Eliminatoria, ignorando cambios de formato/cantidad.`);
-        // formatoFinal y cantidadFinal ya tienen los valores originales
-    }
+    } 
 
     const torneoActualizado = await torneoModel.editarTorneo(
         idTorneoInt, nombre_torneo, fecha_inicio, fecha_fin, tipo_torneo,

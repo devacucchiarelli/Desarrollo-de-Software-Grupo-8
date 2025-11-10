@@ -18,7 +18,6 @@ async function generarPartidosParaTorneo(id_torneo, cantidad_equipos) {
   let partidosPorRonda = cantidad_equipos / 2; // Partidos en la primera ronda (octavos si 16, cuartos si 8)
   let rondaOffset = 0; // Para indexar partidos correctamente
 
-  console.log(`Generando fixture de ${totalPartidos} partidos para ${cantidad_equipos} equipos (Torneo ID: ${id_torneo}).`);
 
   // Bucle por rondas (Octavos -> Cuartos -> Semis -> Final)
   while (partidosPorRonda >= 1) {
@@ -44,7 +43,6 @@ async function generarPartidosParaTorneo(id_torneo, cantidad_equipos) {
         if (rondaActual === 1) { rondaLabel = 'Final'; fechaRonda.setDate(fechaActual.getDate() + 15); }
     }
 
-    console.log(` -> Generando ${partidosPorRonda} partidos de ${rondaLabel}`);
 
     // Bucle para los partidos de ESTA ronda
     for (let i = 0; i < partidosPorRonda; i++) {
@@ -79,7 +77,6 @@ async function generarPartidosParaTorneo(id_torneo, cantidad_equipos) {
     partidosPorRonda /= 2; // Pasamos a la siguiente ronda (mitad de partidos)
   }
 
-  console.log(`Generados ${partidosGenerados.length} partidos en total para torneo ${id_torneo}.`);
   return partidosGenerados;
 }
 // --- FIN Lógica de generación ---
@@ -103,16 +100,6 @@ async function updatePartidoService(id_partido, data) {
     rojas = []              // Array simple de IDs de jugadores
   } = data;
 
-  console.log('📝 Actualizando partido:', {
-    id_partido,
-    equipo_local,
-    equipo_visitante,
-    id_equipo_local,
-    id_equipo_visitante,
-    resultado_local,
-    resultado_visitante
-  });
-
   // Actualizar tabla partidos CON los IDs de equipos
   await partidoModel.updatePartido(
     id_partido, 
@@ -124,12 +111,6 @@ async function updatePartidoService(id_partido, data) {
     resultado_local, 
     resultado_visitante
   );
-
-  console.log('⚽ Estadísticas recibidas:', { goleadores, amarillas, rojas });
-
-  // Limpiar estadísticas anteriores del partido (opcional)
-  // await partidoModel.deleteEstadisticasPartido(id_partido);
-
   // Insertar estadísticas de goleadores (puede haber múltiples goles del mismo jugador)
   for (const id_jugador of goleadores) {
     await partidoModel.upsertEstadisticaJugadorPartido(

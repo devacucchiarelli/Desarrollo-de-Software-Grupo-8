@@ -16,8 +16,6 @@ export default function Registro() {
     e.preventDefault()
 
     try {
-      console.log('📤 Enviando datos de registro:', formData)
-
       const response = await fetch('http://localhost:3000/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -28,7 +26,6 @@ export default function Registro() {
       const data = await response.json()
       if (!response.ok) throw new Error(data.error || 'Error al registrar usuario')
 
-      alert('✅ Usuario registrado correctamente')
       setFormData({ nombre: '', email: '', password: '', rol: 'jugador' })
     } catch (error) {
       console.error('❌ Error en registro:', error)

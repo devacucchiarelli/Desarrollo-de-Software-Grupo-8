@@ -1,5 +1,3 @@
-
-
 import './App.css'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/home.jsx";
@@ -9,9 +7,11 @@ import Equipo from "./pages/equipo.jsx";
 import Torneos from "./pages/torneo.jsx";
 import LoginRegister from "./LoginRegister.jsx"
 import Fixture from "./pages/Fixture.jsx";
-import Estadisticas from './pages/Estadisticas';
+import EstadisticasTorneo from './pages/EstadisticasTorneo.jsx';
 import TablaPosiciones from "./pages/TablaPosiciones.jsx";
 import Layout from './pages/layout';
+import PerfilUsuario from "./pages/PerfilUsuario";
+import ListaTorneos from './pages/ListaTorneos.jsx'
 
 import React, { useState, useEffect } from 'react';
 
@@ -32,7 +32,6 @@ function App() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('🔵 Usuario desde /usuarios/me:', data); // ← AGREGAR ESTA LÍNEA
         setUsuario(data);
       } else {
         setUsuario(null);
@@ -78,9 +77,14 @@ function App() {
           <Route path="/usuarios" element={<ListaUsuarios usuario={usuario} />} />
           <Route path="/equipo" element={<Equipo usuario={usuario} />} />
           <Route path="/torneo" element={<Torneos usuario={usuario} />} />
-          <Route path="/estadisticas" element={<Estadisticas />} />
           <Route path="/torneo/:idTorneo/fixture" element={<Fixture usuario={usuario} />} />
           <Route path="/torneo/:idTorneo/tabla" element={<TablaPosiciones usuario={usuario} />} />
+          <Route path="/perfil" element={<PerfilUsuario />} />
+          <Route path="/equipo/inscripcion/:idEquipo" element={<Equipo />} />
+
+          {/* ✅ RUTAS DE ESTADÍSTICAS */}
+          <Route path="/torneos" element={<ListaTorneos usuario={usuario} />} />
+          <Route path="/estadisticas/:id_torneo" element={<EstadisticasTorneo usuario={usuario} />} />
         </Route>
       </Routes>
     </BrowserRouter>

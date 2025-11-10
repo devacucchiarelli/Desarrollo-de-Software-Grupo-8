@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import '../styles/css/fixture.css';
 
@@ -11,6 +11,10 @@ function EditMatchModal({ partido, onClose, onSave, isAdmin, idTorneo }) {
   const [jugadoresVisitante, setJugadoresVisitante] = useState([]);
   const [estadisticasJugadores, setEstadisticasJugadores] = useState({});
   const [loading, setLoading] = useState(true);
+  const canPlaySound = useRef(true); //para el gol
+  const audioRef = useRef(null); // para el gol
+  const canPlayRedCardSound = useRef(true); // Para la roja
+  const audioRedCardRef = useRef(null);     // Para la roja
   const [formData, setFormData] = useState({
     fecha_partido: partido.fecha_partido
       ? new Date(partido.fecha_partido).toISOString().slice(0, 16)
@@ -200,10 +204,53 @@ function EditMatchModal({ partido, onClose, onSave, isAdmin, idTorneo }) {
     onSave(partido.id_partido, dataToSend);
   };
 
+
+const playGoalSound = () => {
+
+  if (!canPlaySound.current) {
+    return;
+  }
+
+  // Si el audio existe
+  if (audioRef.current) {
+    audioRef.current.currentTime = 0; // Reinicia el audio
+    audioRef.current.play();
+    
+    canPlaySound.current = false;
+    
+    setTimeout(() => {
+      canPlaySound.current = true;
+    }, 300); 
+  }
+};
+
+const playRedCardSound = () => {
+  if (!canPlayRedCardSound.current) {
+    return; // Cooldown activo
+  }
+  if (audioRedCardRef.current) {
+    audioRedCardRef.current.currentTime = 0;
+    audioRedCardRef.current.play();
+
+    canPlayRedCardSound.current = false;
+    setTimeout(() => {
+      canPlayRedCardSound.current = true;
+    }, 300); 
+  }
+};
+
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <h3>{isAdmin ? 'Editar' : 'Ver'} Partido #{partido.id_partido}</h3>
+
+        <audio 
+          ref={audioRef} 
+          src="/gol.mp3" 
+          preload="auto" 
+        />
+        <audio ref={audioRedCardRef} src="/tarjeta-roja.mp3" preload="auto" />
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '2rem' }}>
@@ -304,11 +351,11 @@ function EditMatchModal({ partido, onClose, onSave, isAdmin, idTorneo }) {
                           <div className="stat-control">
                             <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); decrementarGol(jugador.id_usuario, 'local'); }} disabled={!isAdmin || stats.goles === 0}>-</button>
                             <span className={`stat-display goals ${stats.goles > 0 ? 'active' : ''}`}>⚽ {stats.goles}</span>
-                            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleGol(jugador.id_usuario, 'local'); }} disabled={!isAdmin}>+</button>
+                            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleGol(jugador.id_usuario, 'local'); playGoalSound();}} disabled={!isAdmin}>+</button>
                           </div>
 
                           <button type="button" className={`stat-button yellow ${stats.amarillas > 0 ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleAmarilla(jugador.id_usuario, 'local'); }} disabled={!isAdmin}>🟨</button>
-                          <button type="button" className={`stat-button red ${stats.rojas > 0 ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleRoja(jugador.id_usuario, 'local'); }} disabled={!isAdmin}>🟥</button>
+                          <button type="button" className={`stat-button red ${stats.rojas > 0 ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleRoja(jugador.id_usuario, 'local'); playRedCardSound(); }} disabled={!isAdmin}>🟥</button>
                         </div>
                       );
                     })}
@@ -331,11 +378,11 @@ function EditMatchModal({ partido, onClose, onSave, isAdmin, idTorneo }) {
                           <div className="stat-control">
                             <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); decrementarGol(jugador.id_usuario, 'visitante'); }} disabled={!isAdmin || stats.goles === 0}>-</button>
                             <span className={`stat-display goals ${stats.goles > 0 ? 'active' : ''}`}>⚽ {stats.goles}</span>
-                            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleGol(jugador.id_usuario, 'visitante'); }} disabled={!isAdmin}>+</button>
+                            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleGol(jugador.id_usuario, 'visitante'); playGoalSound(); }} disabled={!isAdmin}>+</button>
                           </div>
 
                           <button type="button" className={`stat-button yellow ${stats.amarillas > 0 ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleAmarilla(jugador.id_usuario, 'visitante'); }} disabled={!isAdmin}>🟨</button>
-                          <button type="button" className={`stat-button red ${stats.rojas > 0 ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleRoja(jugador.id_usuario, 'visitante'); }} disabled={!isAdmin}>🟥</button>
+                          <button type="button" className={`stat-button red ${stats.rojas > 0 ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleRoja(jugador.id_usuario, 'visitante'); playRedCardSound(); }} disabled={!isAdmin}>🟥</button>
                         </div>
                       );
                     })}
@@ -552,6 +599,7 @@ export default function Fixture({ usuario }) {
   );
 
   return (
+    <>
     <div className={`fixture-container bracket-${bracketSize || 'unknown'}`}>
       <button onClick={() => navigate('/')} className="btn-volver">← Volver</button>
       <h2>Cuadro del Torneo ({bracketSize} Equipos)</h2>
@@ -586,6 +634,8 @@ export default function Fixture({ usuario }) {
           isAdmin={isAdmin}
         />
       )}
+      
     </div>
+    </>
   );
 }
