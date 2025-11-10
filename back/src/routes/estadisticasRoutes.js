@@ -21,5 +21,9 @@ router.get('/partido/:id_partido', EstadisticasController.obtenerEstadisticasPar
 
 
 router.get('/torneo/:id_torneo/resumen', EstadisticasController.obtenerResumenEstadisticasTorneo);
+router.get('/estadisticas/partido/:id_partido', EstadisticasController.obtenerEstadisticasJugadoresPartido);
+
+
+router.post('/recalcular/:id_torneo', EstadisticasController.recalcularEstadisticasTorneo);
 
 module.exports = router;

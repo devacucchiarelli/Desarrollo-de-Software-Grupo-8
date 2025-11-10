@@ -159,3 +159,68 @@ CREATE TABLE solicitudes_equipo (
 
 -- Índice para búsquedas rápidas de solicitudes pendientes
 CREATE INDEX idx_solicitudes_pendientes ON solicitudes_equipo(id_equipo, estado) WHERE estado = 'pendiente';
+
+CREATE TABLE liga_stats (
+    id_liga_stats SERIAL PRIMARY KEY,
+    id_torneo INT NOT NULL,
+    partidos_jugados INT DEFAULT 0,
+    goles_totales INT DEFAULT 0,
+    tarjetas_amarillas_totales INT DEFAULT 0,
+    tarjetas_rojas_totales INT DEFAULT 0,
+    promedio_goles NUMERIC(5,2) DEFAULT 0,
+    equipo_mas_goleador INT,
+    equipo_menos_goleado INT,
+    equipo_con_mas_puntos INT,
+    fecha_actualizacion TIMESTAMPTZ DEFAULT NOW(),
+
+    CONSTRAINT fk_liga_torneo
+        FOREIGN KEY (id_torneo)
+        REFERENCES torneos(id_torneo)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_liga_mas_goleador
+        FOREIGN KEY (equipo_mas_goleador)
+        REFERENCES equipos(id_equipo)
+        ON DELETE SET NULL,
+
+    CONSTRAINT fk_liga_menos_goleado
+        FOREIGN KEY (equipo_menos_goleado)
+        REFERENCES equipos(id_equipo)
+        ON DELETE SET NULL,
+
+    CONSTRAINT fk_liga_mas_puntos
+        FOREIGN KEY (equipo_con_mas_puntos)
+        REFERENCES equipos(id_equipo)
+        ON DELETE SET NULL
+);
+
+CREATE TABLE equipo_stats_liga (
+    id_equipo_stats SERIAL PRIMARY KEY,
+    id_torneo INT NOT NULL,
+    id_equipo INT NOT NULL,
+    partidos_jugados INT DEFAULT 0,
+    victorias INT DEFAULT 0,
+    empates INT DEFAULT 0,
+    derrotas INT DEFAULT 0,
+    goles_a_favor INT DEFAULT 0,
+    goles_en_contra INT DEFAULT 0,
+    diferencia_goles INT GENERATED ALWAYS AS (goles_a_favor - goles_en_contra) STORED,
+    puntos INT DEFAULT 0,
+    tarjetas_amarillas INT DEFAULT 0,
+    tarjetas_rojas INT DEFAULT 0,
+    posicion INT,
+    fecha_actualizacion TIMESTAMPTZ DEFAULT NOW(),
+
+    CONSTRAINT fk_equipo_stats_torneo
+        FOREIGN KEY (id_torneo)
+        REFERENCES torneos(id_torneo)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_equipo_stats_equipo
+        FOREIGN KEY (id_equipo)
+        REFERENCES equipos(id_equipo)
+        ON DELETE CASCADE,
+
+    CONSTRAINT unique_equipo_en_liga UNIQUE (id_torneo, id_equipo)
+);
+    

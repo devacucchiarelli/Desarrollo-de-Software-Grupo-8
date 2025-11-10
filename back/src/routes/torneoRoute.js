@@ -14,4 +14,4 @@ router.get('/', getTodosLosTorneosController);
 router.delete('/:id', eliminarTorneoController);
 router.put('/:id', editarTorneoController);
 
-module.exports = router;
+module.exports = router;    

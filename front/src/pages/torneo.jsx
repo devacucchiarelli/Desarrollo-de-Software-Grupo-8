@@ -29,7 +29,7 @@ export default function Torneos({ usuario }) {
     useEffect(() => {
         cargarTorneos()
         cargarInscripciones()
-        
+
         if (isAdmin) {
             cargarTodosLosEquipos()
         } else if (isCapitan && usuario?.id_usuario) {
@@ -219,9 +219,10 @@ export default function Torneos({ usuario }) {
                                         <small>Equipos inscritos: {equiposInscritos[t.id_torneo].length}</small>
                                     )}
 
-                                    <div style={{ marginTop: '10px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                                    <div style={{
+                                        marginTop: '10px', display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center'}}>
                                         {/* LÓGICA POR ROLES */}
-                                        
+
                                         {/* ADMINISTRADOR: Puede inscribir cualquier equipo */}
                                         {isAdmin && (
                                             <button
@@ -272,7 +273,7 @@ export default function Torneos({ usuario }) {
                                                     color: 'white',
                                                     border: 'none',
                                                     borderRadius: '4px',
-                                                    cursor: 'pointer'
+                                                    cursor: 'pointer',
                                                 }}
                                             >
                                                 Ver Fixture
@@ -289,7 +290,7 @@ export default function Torneos({ usuario }) {
                                                     color: 'white',
                                                     border: 'none',
                                                     borderRadius: '4px',
-                                                    cursor: 'pointer'
+                                                    cursor: 'pointer',
                                                 }}
                                             >
                                                 Ver Tabla
