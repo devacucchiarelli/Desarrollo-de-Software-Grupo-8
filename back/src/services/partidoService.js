@@ -1,7 +1,7 @@
 const partidoModel = require('../models/partidoModel');
 
 const tablaPosicionesService = require('./tablaPosicionesService'); 
-const { query } = require('../../db'); //  para actualizar solo resultado
+const { query } = require('../models/db.js');
 
 
 // --- Lógica de generación de fixture (AHORA basada en cantidad_equipos) ---

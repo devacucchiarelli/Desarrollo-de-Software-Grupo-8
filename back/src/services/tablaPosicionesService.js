@@ -1,7 +1,7 @@
 const partidoModel = require('../models/partidoModel');
 const equipoModel = require('../models/equipoModel');
 const torneoModel = require('../models/torneoModel');
-const { query } = require('../../db');
+const { query } = require('../models/db.js');
 
 
 async function calcularTablaPosiciones(id_torneo) {

@@ -2,9 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import '../styles/css/fixture.css';
 
-import { getTablaPosiciones, updateNombreEquipo } from "../servicios/partidosService";
-
-
 function EditMatchModal({ partido, onClose, onSave, isAdmin, idTorneo }) {
   const [equipos, setEquipos] = useState([]);
   const [jugadoresLocal, setJugadoresLocal] = useState([]);
